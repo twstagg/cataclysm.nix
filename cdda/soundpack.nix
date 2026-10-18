@@ -4,7 +4,7 @@
 # with soundpack.txt + JSON + audio, per doc/SOUNDPACKS.md). This builder
 # just isolates <src>/<sourceDir> into $out, so the game merge only sees
 # the pack itself and not the repo's docs/tools/template siblings.
-# Single-level function (like nix/tileset.nix) so callers use
+# Single-level function (like ./tileset.nix) so callers use
 # pkgs.callPackage with all non-nixpkgs arguments passed explicitly.
 {
   lib,

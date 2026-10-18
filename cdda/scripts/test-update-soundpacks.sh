@@ -4,14 +4,13 @@
 # Usage: test-update-soundpacks.sh <updater-under-test>
 #
 # Each case builds a temp dir with mock git/nix on PATH and a fixture
-# flake.nix, runs the updater, and asserts exit codes, file contents and
-# which external commands ran. Cases: unchanged-skip, revision-update,
-# malformed-diagnostics, fetch-failure, interrupted-repair, multi-hash
-# ambiguity, unexpected-success.
+# pin file (cdda/default.nix), runs the updater, and asserts exit
+# codes, file contents and which external commands ran. Cases:
+# unchanged-skip, revision-update, malformed-diagnostics, fetch-failure,
+# interrupted-repair, multi-hash-ambiguity, unexpected-success.
 #
-# Sibling of test-update-tilesets.sh: same harness, one source instead
-# of two, so the sparse-preservation and atomic-rollback cases (which
-# need sparse checkouts and multiple pending updates) do not apply.
+# Sibling of test-update-tilesets.sh: same harness, one full-clone
+# source instead of two sparse ones.
 set -u
 
 UPDATER="$1"
@@ -71,7 +70,7 @@ new_case() {
   T="$(mktemp -d)"
   TMPDIRS="$TMPDIRS $T"
   MOCKBIN="$T/bin"
-  mkdir -p "$MOCKBIN" "$T/wt"
+  mkdir -p "$MOCKBIN" "$T/wt/cdda"
   BASH_BIN="$(command -v bash)"
   printf '#!%s\n' "$BASH_BIN" >"$MOCKBIN/git"
   cat >>"$MOCKBIN/git" <<'EOF'
@@ -120,14 +119,14 @@ nix_calls() {
 t_unchanged() {
   new_case
   export MOCK_HEAD_SND="$SHA_OLD"
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
     bad "unchanged: exit $rc"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "unchanged: file modified"
     return
   }
@@ -147,7 +146,7 @@ t_update() {
   new_case
   export MOCK_HEAD_SND="$SHA_NEW"
   export MOCK_NIX_SND=got MOCK_GOT_SND="$HASH_NEW"
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
   fixture_flake "$SHA_NEW" "$HASH_NEW" "$T/expected.nix"
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
@@ -155,9 +154,9 @@ t_update() {
     cat "$T/out.txt"
     return
   }
-  cmp -s "$T/expected.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/expected.nix" "$T/wt/cdda/default.nix" || {
     bad "update: content mismatch"
-    diff "$T/expected.nix" "$T/wt/flake.nix"
+    diff "$T/expected.nix" "$T/wt/cdda/default.nix"
     return
   }
   ok "revision-update"
@@ -168,14 +167,14 @@ t_malformed() {
   new_case
   export MOCK_HEAD_SND="$SHA_NEW"
   export MOCK_NIX_SND=garbage
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "malformed: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "malformed: file modified"
     return
   }
@@ -192,14 +191,14 @@ t_fetchfail() {
   new_case
   export MOCK_HEAD_SND="$SHA_NEW"
   export MOCK_NIX_SND=netfail
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "fetchfail: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "fetchfail: file modified"
     return
   }
@@ -215,7 +214,7 @@ t_repair() {
   new_case
   export MOCK_HEAD_SND="$SHA_OLD"
   export MOCK_NIX_SND=got MOCK_GOT_SND="$HASH_NEW"
-  fixture_flake "$SHA_OLD" "$FAKE" "$T/wt/flake.nix"
+  fixture_flake "$SHA_OLD" "$FAKE" "$T/wt/cdda/default.nix"
   fixture_flake "$SHA_OLD" "$HASH_NEW" "$T/expected.nix"
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
@@ -223,9 +222,9 @@ t_repair() {
     cat "$T/out.txt"
     return
   }
-  cmp -s "$T/expected.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/expected.nix" "$T/wt/cdda/default.nix" || {
     bad "repair: content mismatch"
-    diff "$T/expected.nix" "$T/wt/flake.nix"
+    diff "$T/expected.nix" "$T/wt/cdda/default.nix"
     return
   }
   grep -q "plan: repair" "$T/out.txt" || {
@@ -240,14 +239,14 @@ t_multihash() {
   new_case
   export MOCK_HEAD_SND="$SHA_NEW"
   export MOCK_NIX_SND=multi MOCK_GOT_SND="$HASH_NEW" MOCK_GOT2="$HASH_NEW2"
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "multihash: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "multihash: file modified"
     return
   }
@@ -263,14 +262,14 @@ t_unexpected_ok() {
   new_case
   export MOCK_HEAD_SND="$SHA_NEW"
   export MOCK_NIX_SND=ok
-  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/flake.nix"
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/cdda/default.nix"
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "unexpected-ok: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "unexpected-ok: file modified"
     return
   }

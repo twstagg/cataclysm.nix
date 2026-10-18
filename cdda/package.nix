@@ -26,6 +26,7 @@
   ncurses,
   zlib,
   bzip2,
+  libbacktrace,
   SDL2,
   SDL2_image,
   SDL2_ttf,
@@ -49,10 +50,10 @@
   useXdgDir ? false,
   # build the cata_test Catch2 binary instead of the game
   buildTests ? false,
-  # composed tileset derivations (nix/tileset.nix) baked into
+  # composed tileset derivations (./tileset.nix) baked into
   # share/cataclysm-dda/gfx/<tilesetDir>; release-bundle equivalent
   extraTilesets ? [ ],
-  # soundpack derivations (nix/soundpack.nix) baked into
+  # soundpack derivations (./soundpack.nix) baked into
   # share/cataclysm-dda/sound/<soundpackDir>, alongside the in-tree
   # Basic pack. Mirrors release.yml, which drops CC-Sounds into
   # data/sound for every sound-enabled build.
@@ -121,6 +122,9 @@ stdenv.mkDerivation (
       zlib
       bzip2
       gettext
+      # LIBBACKTRACE=1 links -lbacktrace and includes <backtrace.h>
+      # (see the makeFlags note on release parity).
+      libbacktrace
     ]
     ++ gameDeps;
 
@@ -130,11 +134,21 @@ stdenv.mkDerivation (
       patchShebangs lang/
     '';
 
-    # The Makefile invokes these by bare name; be explicit anyway.
-    # (SDL2-era sources never call the shader script, so no GLSLANG then.)
-    env = lib.optionalAttrs (tiles && useSdl3) {
-      GLSLANG = lib.getExe' glslang "glslangValidator";
-    };
+    env =
+      {
+        # gcc 16 (nixpkgs-unstable) grew -Werror=sfinae-incomplete, and
+        # stable 0.I predates upstream's own -Wno-error=sfinae-incomplete
+        # (master and TLG both carry it in their Makefiles), so old
+        # sources hard-fail on src/vehicle.h. NIX_CFLAGS_COMPILE is
+        # appended after the Makefile's flags, so this wins over -Werror.
+        # Harmless once the stable tag moves; drop it then.
+        NIX_CFLAGS_COMPILE = "-Wno-error=sfinae-incomplete";
+      }
+      // lib.optionalAttrs (tiles && useSdl3) {
+        # The Makefile invokes this by bare name; be explicit anyway.
+        # (SDL2-era sources never call the shader script, so no GLSLANG then.)
+        GLSLANG = lib.getExe' glslang "glslangValidator";
+      };
 
     makeFlags = [
       "PREFIX=${placeholder "out"}"
@@ -143,6 +157,22 @@ stdenv.mkDerivation (
       "RUNTESTS=0"
       "LOCALIZE=1"
       "LANGUAGES=all"
+      # Release parity with .github/workflows/release.yml, which builds
+      # ... BACKTRACE=1 LIBBACKTRACE=1 PCH=0 bindist. BACKTRACE=1 is the
+      # Makefile default on Linux (adds -DBACKTRACE, -rdynamic); this
+      # adds the libbacktrace variant (-DLIBBACKTRACE, -lbacktrace).
+      # PCH=0 matches CI (precompiled headers off; pure build-time
+      # difference, same output).
+      "BACKTRACE=1"
+      "LIBBACKTRACE=1"
+      "PCH=0"
+      # The default goal includes the json style gate (LINTJSON=1 on
+      # RELEASE builds), which fails when json_formatter would rewrite
+      # a non-canonical data/*.json. Today's tag passes, but the rewrite
+      # path is meaningless in a Nix build: the source is read-only and
+      # we do not want silently-reformatted data in the store output.
+      # Upstream CI sidesteps the gate by building `bindist`.
+      "LINTJSON=0"
       (if useXdgDir then "USE_XDG_DIR=1" else "USE_HOME_DIR=1")
     ]
     ++ optionals (!debug) [ "RELEASE=1" ]

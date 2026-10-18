@@ -4,7 +4,7 @@
 # Usage: test-update-tilesets.sh <updater-under-test>
 #
 # Each case builds a temp dir with mock git/nix on PATH and a fixture
-# flake.nix, runs the updater, and asserts exit codes, file contents and
+# cdda/default.nix, runs the updater, and asserts exit codes, contents and
 # which external commands ran. Cases: unchanged-skip, revision-update,
 # sparse-preservation, malformed-diagnostics, fetch-failure,
 # interrupted-repair, multi-hash ambiguity, unexpected-success.
@@ -75,7 +75,7 @@ new_case() {
   T="$(mktemp -d)"
   TMPDIRS="$TMPDIRS $T"
   MOCKBIN="$T/bin"
-  mkdir -p "$MOCKBIN" "$T/wt"
+  mkdir -p "$MOCKBIN" "$T/wt/cdda"
   BASH_BIN="$(command -v bash)"
   printf '#!%s\n' "$BASH_BIN" >"$MOCKBIN/git"
   cat >>"$MOCKBIN/git" <<'EOF'
@@ -126,14 +126,14 @@ nix_calls() {
 t_unchanged() {
   new_case
   export MOCK_HEAD_ERK="$SHA_OLD_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/MShockXotto+"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/MShockXotto+"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
     bad "unchanged: exit $rc"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "unchanged: file modified"
     return
   }
@@ -153,7 +153,7 @@ t_update() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=got MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
   fixture_flake "$SHA_NEW_A" "$HASH_NEW" "$SHA_OLD_B" "$HASH_B" "$T/expected.nix" '"gfx/Altica"'
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
@@ -161,9 +161,9 @@ t_update() {
     cat "$T/out.txt"
     return
   }
-  cmp -s "$T/expected.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/expected.nix" "$T/wt/cdda/default.nix" || {
     bad "update: content mismatch"
-    diff "$T/expected.nix" "$T/wt/flake.nix"
+    diff "$T/expected.nix" "$T/wt/cdda/default.nix"
     return
   }
   ok "revision-update"
@@ -174,16 +174,16 @@ t_sparse() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=got MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/MShockXotto+" "gfx/HitButton_iso"'
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/MShockXotto+" "gfx/HitButton_iso"'
   fixture_flake "$SHA_NEW_A" "$HASH_NEW" "$SHA_OLD_B" "$HASH_B" "$T/expected.nix" '"gfx/MShockXotto+" "gfx/HitButton_iso"'
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
     bad "sparse: exit $rc"
     return
   }
-  cmp -s "$T/expected.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/expected.nix" "$T/wt/cdda/default.nix" || {
     bad "sparse: content mismatch"
-    diff "$T/expected.nix" "$T/wt/flake.nix"
+    diff "$T/expected.nix" "$T/wt/cdda/default.nix"
     return
   }
   ok "sparse-preservation"
@@ -194,14 +194,14 @@ t_malformed() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=garbage MOCK_NIX_CUTE=got MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "malformed: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "malformed: file modified"
     return
   }
@@ -218,14 +218,14 @@ t_fetchfail() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=netfail MOCK_NIX_CUTE=got MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "fetchfail: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "fetchfail: file modified"
     return
   }
@@ -241,7 +241,7 @@ t_repair() {
   new_case
   export MOCK_HEAD_ERK="$SHA_OLD_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=got MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$FAKE" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
+  fixture_flake "$SHA_OLD_A" "$FAKE" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
   fixture_flake "$SHA_OLD_A" "$HASH_NEW" "$SHA_OLD_B" "$HASH_B" "$T/expected.nix" '"gfx/Altica"'
   rc="$(run_updater)"
   [ "$rc" -eq 0 ] || {
@@ -249,9 +249,9 @@ t_repair() {
     cat "$T/out.txt"
     return
   }
-  cmp -s "$T/expected.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/expected.nix" "$T/wt/cdda/default.nix" || {
     bad "repair: content mismatch"
-    diff "$T/expected.nix" "$T/wt/flake.nix"
+    diff "$T/expected.nix" "$T/wt/cdda/default.nix"
     return
   }
   grep -q "plan: repair" "$T/out.txt" || {
@@ -266,14 +266,14 @@ t_multihash() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=multi MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT2="$HASH_NEW2" MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "multihash: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "multihash: file modified"
     return
   }
@@ -290,16 +290,16 @@ t_atomicity() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_NEW_B"
   export MOCK_NIX_ERK=garbage MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_NEW2"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "atomicity: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "atomicity: partial write survived"
-    diff "$T/before.nix" "$T/wt/flake.nix"
+    diff "$T/before.nix" "$T/wt/cdda/default.nix"
     return
   }
   ok "atomic-rollback"
@@ -310,14 +310,14 @@ t_unexpected_ok() {
   new_case
   export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
   export MOCK_NIX_ERK=ok MOCK_NIX_CUTE=got MOCK_GOT_CUTE="$HASH_B"
-  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/flake.nix" '"gfx/Altica"'
-  cp "$T/wt/flake.nix" "$T/before.nix"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/Altica"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
   rc="$(run_updater)"
   [ "$rc" -ne 0 ] || {
     bad "unexpected-ok: exit 0"
     return
   }
-  cmp -s "$T/before.nix" "$T/wt/flake.nix" || {
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
     bad "unexpected-ok: file modified"
     return
   }

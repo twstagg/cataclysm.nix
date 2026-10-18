@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
-# Bump the soundpack source pins in flake.nix to upstream HEAD.
+# Bump the tileset source pins in cdda/default.nix to upstream HEAD.
 #
-# Usage: update-soundpacks.sh [--check]
+# Usage: update-tilesets.sh [--check]
 #   (no args)  resolve HEAD revs, prefetch verified hashes, rewrite pins
 #   --check    print current vs HEAD revs without changing anything
-#
-# Sibling of update-tilesets.sh: same two-phase shape, same probe-hash
-# pattern, same safety story (plan first, backup, verify). Kept as a
-# separate script so tileset and soundpack pins evolve independently.
 #
 # Cost model (evaluation vs fetching vs compilation):
 # * Evaluation only reads expressions (e.g. nix flake check --no-build).
@@ -15,16 +11,13 @@
 #   this and nothing more.
 # * Compilation turns sources into outputs (game C++ builds). This script
 #   never gets that far: the probe packages pin a throwaway hash, so they
-#   die fetching inputs, and Nix prints the verified `got:` hash.
-#
-# Note on hashing: unlike the sparse tileset checkouts (which nurl
-# cannot hash), this is a full clone with submodules, so nurl would
-# work here. The probe pattern is kept anyway so both updaters share
-# one mechanism, one set of failure modes, and one test harness.
+#   die fetching inputs, and Nix prints the verified `got:` hash for the
+#   exact sparse tree in the unchanged fetchFromGitHub { sparseCheckout }
+#   setup. Nothing here compiles any project code.
 #
 # Safety: resolve all HEADs and work out the whole plan before writing
 # anything. Hashing has to stage rev+placeholder in the working file
-# (probes read pins out of flake.nix), so take a backup first, put it
+# (probes read pins out of the pin file), so take a backup first, put it
 # back on any failure, and re-read everything at the end to confirm.
 # Placeholder goes in first so a killed run always lands somewhere
 # recoverable: rev==HEAD with a leftover placeholder gets repaired,
@@ -39,14 +32,15 @@ die() {
 }
 
 cd "$(git rev-parse --show-toplevel)"
-FLAKE="flake.nix"
+FLAKE="cdda/default.nix"
 CHECK_ONLY=0
 if [ "${1-}" = "--check" ]; then
   CHECK_ONLY=1
 fi
 
 # owner, repo, and the probe package whose fetch proves the hash.
-SOURCES="Fris0uman CDDA-Soundpacks .#soundpack-cc-sounds"
+SOURCES="I-am-Erk CDDA-Tilesets .#tileset-retrodays
+pixel-32 CDDA-tileset .#tileset-cuteclysm"
 
 is_sri_hash() {
   [[ "$1" =~ ^sha256-[A-Za-z0-9+/]{43}=$ ]]
@@ -140,7 +134,7 @@ while read -r owner repo probe; do
 done <<<"$SOURCES"
 
 if [ "$CHECK_ONLY" -eq 1 ]; then
-  echo "check only; flake.nix untouched."
+  echo "check only; pin file untouched."
   exit 0
 fi
 
@@ -153,7 +147,7 @@ for ((i = 0; i < n_src; i++)); do
   fi
 done
 if [ "$all_skip" -eq 1 ]; then
-  echo "all sources current; flake.nix untouched."
+  echo "all sources current; pin file untouched."
   exit 0
 fi
 

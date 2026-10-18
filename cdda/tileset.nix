@@ -7,7 +7,7 @@
 # and stitches the loose PNGs into sheet images, writing out
 # tile_config.json + sheets. Any ERROR it logs (missing sprite,
 # duplicate id, wrong size) fails the build, same as upstream CI.
-# Single-level function (like nix/package.nix) so callers use
+# Single-level function (like ./package.nix) so callers use
 # pkgs.callPackage with all non-nixpkgs arguments passed explicitly.
 {
   lib,

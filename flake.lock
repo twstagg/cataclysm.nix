@@ -17,6 +17,22 @@
         "type": "github"
       }
     },
+    "cataclysm-dda-master": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792267126,
+        "narHash": "sha256-Q/6VNdXXqamf2y0cW/gnAEfCSdzxYtlAupTCSUzAsmI=",
+        "owner": "CleverRaven",
+        "repo": "Cataclysm-DDA",
+        "rev": "c130a5c6be539f41315c7aad53bc3c103e9a0acc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "CleverRaven",
+        "repo": "Cataclysm-DDA",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -69,6 +85,7 @@
     "root": {
       "inputs": {
         "cataclysm-dda": "cataclysm-dda",
+        "cataclysm-dda-master": "cataclysm-dda-master",
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs"
       }
