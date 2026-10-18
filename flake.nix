@@ -24,12 +24,20 @@
     #                                   master branch, so nix flake
     #                                   update moves it like any other
     #                                   input
+    #
+    #   tlg/   Cataclysm-TLG/Cataclysm-TLG, an independent fork with
+    #          its own release cadence, pinned to a dated tag for the
+    #          same reason.
     cataclysm-dda = {
       url = "github:CleverRaven/Cataclysm-DDA/0.I-1";
       flake = false;
     };
     cataclysm-dda-master = {
       url = "github:CleverRaven/Cataclysm-DDA";
+      flake = false;
+    };
+    cataclysm-tlg = {
+      url = "github:Cataclysm-TLG/Cataclysm-TLG/cataclysm-tlg-1.0-2026-10-16-0752";
       flake = false;
     };
   };
@@ -42,6 +50,7 @@
       # shells, and updater apps.
       imports = [
         ./cdda
+        ./tlg
       ];
 
       systems = [
