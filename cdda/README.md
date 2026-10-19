@@ -39,6 +39,9 @@ cd "$(mktemp -d)" && ln -s ../result/share/cataclysm-dda data   # adjust path
 
 ## How it works
 
+The game source is filtered per track (`gameSource` in `./default.nix`), so a
+docs-only upstream commit leaves the store path unchanged and nothing rebuilds.
+
 - `./package.nix`: one `stdenv.mkDerivation` covering all variants (`tiles`, `sound`, `buildTests` flags, plus `useSdl3` for the SDL major version). It mirrors nixpkgs' `pkgs/games/cataclysm-dda` shape, with no source patches. SDL follows the pinned game era: SDL2 for stable 0.I and older, SDL3 for master / 0.J dev (upstream dropped SDL2 on 2026-08-11; flip `useSdl3` in `./default.nix` when moving the input across that boundary):
   - `PREFIX=$out` is baked into the binary (`-DPREFIX -DDATA_DIR_PREFIX`), so data resolves to `$out/share/cataclysm-dda` and locales to `$out/share/locale`.
   - `LANGUAGES=all LOCALIZE=1` compiles every translation via `msgfmt`.

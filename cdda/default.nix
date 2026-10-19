@@ -30,6 +30,24 @@
       # era only decides SDL generation, the version banner, and whether
       # composed tilesets are merged into the bundle (on stable they
       # already ship in-tree, and merging would duplicate tileset NAMEs).
+      # Keep only what the Makefile reads. docs/, .git and .github/ are
+      # dead weight, and dropping them means a docs-only upstream commit
+      # leaves this path unchanged, so nothing rebuilds. A deny-list
+      # rather than an allow-list, so a new upstream directory is never
+      # silently missing from a build.
+      gameSource =
+        input:
+        pkgs.lib.cleanSourceWith {
+          src = input;
+          name = "cataclysm-dda-${input.shortRev or "source"}";
+          filter =
+            path: type:
+            let
+              base = baseNameOf (toString path);
+            in
+            !(base == "docs" || base == ".git" || base == ".github");
+        };
+
       mkEra =
         {
           src,
@@ -76,7 +94,7 @@
         };
 
       stable = mkEra {
-        src = inputs.cataclysm-dda.outPath;
+        src = gameSource inputs.cataclysm-dda;
         shortRev = inputs.cataclysm-dda.shortRev;
         versionPrefix = "0.I-1";
         useSdl3 = false;
@@ -84,7 +102,7 @@
       };
 
       master = mkEra {
-        src = inputs.cataclysm-dda-master.outPath;
+        src = gameSource inputs.cataclysm-dda-master;
         shortRev = inputs.cataclysm-dda-master.shortRev;
         versionPrefix = "0.J";
         useSdl3 = true;

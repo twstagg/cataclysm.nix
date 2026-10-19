@@ -20,10 +20,27 @@
       ...
     }:
     let
+      # Keep only what the Makefile reads; docs/, .git and .github/ are
+      # dead weight, and a docs-only upstream commit then leaves this
+      # path unchanged so nothing rebuilds. The json-check runs the
+      # loader over data/json from here, which the filter keeps.
+      gameSource =
+        input:
+        pkgs.lib.cleanSourceWith {
+          src = input;
+          name = "cataclysm-tlg-${input.shortRev or "source"}";
+          filter =
+            path: type:
+            let
+              base = baseNameOf (toString path);
+            in
+            !(base == "docs" || base == ".git" || base == ".github");
+        };
+
       # The game itself. Pinned to a dated release tag in the root flake
       # inputs (tags are immutable, so nix flake update keeps it steady);
       # bump by editing the ref there.
-      tlgSrc = inputs.cataclysm-tlg.outPath;
+      tlgSrc = gameSource inputs.cataclysm-tlg;
       # VERSION for the binary banner; the Makefile default is a bare
       # 1.0 and fetched sources have no .git.
       version = "1.0+" + (inputs.cataclysm-tlg.shortRev or "git");

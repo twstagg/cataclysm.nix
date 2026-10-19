@@ -15,6 +15,8 @@ Differences from the CDDA chunk, all verified against the fork:
 - **Tilesets ship pre-composed in-tree** (12 sets in `gfx/`, synced from `CTLG-Tilesets` releases by upstream CI). Nothing to compose, nothing to merge.
 - **No test binary**: the Catch2 suite was stripped at fork time, so there is no `tlg-test` and no calendar smoke. The TLG checks are `tlg-json-check` (builds the game's `chkjson` and runs the real loader over `data/json`) and `tlg-soundpacks-validate` (manifest gate).
 - **Own soundpack repo**: `Cataclysm-TLG/CTLG-Soundpacks` (same `sound/CC-Sounds` layout, music via the `CTLG-Music-Packs` submodule), bundled into `tlg-tiles` the way release CI does.
+- **Filtered source**: `gameSource` drops `docs/`, `.git` and `.github/`, so a
+  docs-only upstream commit does not invalidate the build.
 - **User files**: `~/.cataclysm-tlg/` (XDG via the `useXdgDir` flag). Binaries are `cataclysm-tlg`/`cataclysm-tlg-tiles`, so both games coexist without collisions.
 
 ## Soundpacks
