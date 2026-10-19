@@ -1,5 +1,38 @@
 {
   "nodes": {
+    "cataclysm-bn": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1790275865,
+        "narHash": "sha256-LDwkj/47Q3Bru4YCyVz/w2yJbst4DxBKOyXMVEvjRHM=",
+        "owner": "cataclysmbn",
+        "repo": "Cataclysm-BN",
+        "rev": "e7b497637d452928ef1a9a77f175c5fd9c3fa75e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cataclysmbn",
+        "ref": "v0.13.0",
+        "repo": "Cataclysm-BN",
+        "type": "github"
+      }
+    },
+    "cataclysm-bn-master": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792306322,
+        "narHash": "sha256-pnf8by5lo1nFrCBnvx9KdIswawBJ03fyZyoxQBhwd8U=",
+        "owner": "cataclysmbn",
+        "repo": "Cataclysm-BN",
+        "rev": "12839753d9e1ab82c8079e6d4a933022a5df282a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cataclysmbn",
+        "repo": "Cataclysm-BN",
+        "type": "github"
+      }
+    },
     "cataclysm-dda": {
       "flake": false,
       "locked": {
@@ -101,6 +134,8 @@
     },
     "root": {
       "inputs": {
+        "cataclysm-bn": "cataclysm-bn",
+        "cataclysm-bn-master": "cataclysm-bn-master",
         "cataclysm-dda": "cataclysm-dda",
         "cataclysm-dda-master": "cataclysm-dda-master",
         "cataclysm-tlg": "cataclysm-tlg",

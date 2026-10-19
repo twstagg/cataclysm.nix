@@ -1,0 +1,110 @@
+{
+  "cata": {
+    "display_name": "Cataclysm++",
+    "homepage": "https://github.com/Noctifer-de-Mortem/nocts_cata_mod/tree/master/nocts_cata_mod_BN",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "b7740a26696768295ad0aef1c6644a7b2c80b064",
+      "extract_path": "nocts_cata_mod_BN",
+      "url": "https://github.com/Noctifer-de-Mortem/nocts_cata_mod/archive/refs/heads/master.zip"
+    },
+    "version": "2026.10.16-b7740a2"
+  },
+  "cbn_sky_island": {
+    "display_name": "Sky Island",
+    "homepage": "https://github.com/graysonchao/CBN-Sky-Island",
+    "license": "CC-BY-SA-4.0",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "f303b4681c5df7287f108a106942800aff0d9a50",
+      "extract_path": null,
+      "url": "https://github.com/graysonchao/CBN-Sky-Island/archive/refs/tags/v0.0.9-alpha.zip"
+    },
+    "version": "0.0.9-alpha"
+  },
+  "jake_s_squirrel_mod": {
+    "display_name": "프로젝트: 다람쥐",
+    "homepage": "https://github.com/NobleJake/ProjectPackRat/tree/main/ProjectSquirrel",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "a8718444676e1fc191c7a4b9470fcdcbf23bbbf5",
+      "extract_path": "ProjectPackRat-main/ProjectSquirrel",
+      "url": "https://github.com/NobleJake/ProjectPackRat/archive/refs/heads/main.zip"
+    },
+    "version": "0.0.0"
+  },
+  "medieval_mod_reborn": {
+    "display_name": "Medieval Mod Reborn",
+    "homepage": "https://github.com/chaosvolt/cdda_medieval_mod_reborn/tree/master/Medieval_Mod_Reborn_BN",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "998c70c96e3d2291478c3709a0add8221fc18320",
+      "extract_path": "Medieval_Mod_Reborn_BN",
+      "url": "https://github.com/chaosvolt/cdda_medieval_mod_reborn/archive/refs/heads/master.zip"
+    },
+    "version": "2026.10.16-998c70c"
+  },
+  "mst_extra": {
+    "display_name": "MST Extra",
+    "homepage": "https://github.com/chaosvolt/MST_Extra_Mod/tree/master/MST_Extra_BN",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "5e1a8bfde60b3ec7ae1d1cf227bd244896084716",
+      "extract_path": "MST_Extra_BN",
+      "url": "https://github.com/chaosvolt/MST_Extra_Mod/archive/refs/heads/master.zip"
+    },
+    "version": "2026.10.5-5e1a8bf"
+  },
+  "ny_transformers": {
+    "display_name": "Transformers",
+    "homepage": "https://github.com/NobleJake/ProjectPackRat/tree/main/transformers_beta2.2",
+    "license": "CC-BY-SA-3.0",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "aa10755711cfb537af03b944b3fcfb23f05b4800",
+      "extract_path": "ProjectPackRat-main/transformers_beta2.2",
+      "url": "https://github.com/NobleJake/ProjectPackRat/archive/refs/heads/main.zip"
+    },
+    "version": "2.2.0"
+  },
+  "otopack_bn_mk_2": {
+    "display_name": "Otopack BN Mk 2",
+    "homepage": "https://github.com/NarandBD/Otopack-BN-Mk-2/releases/tag/sorrynotsorry",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "soundpack",
+    "source": {
+      "commit_sha": null,
+      "extract_path": "Otopack+ModsUpdates BN",
+      "url": "https://github.com/NarandBD/Otopack-BN-Mk-2/archive/refs/tags/sorrynotsorry.zip"
+    },
+    "version": "2026.2.12"
+  },
+  "overhaul": {
+    "display_name": "Overhaul Tileset",
+    "homepage": "https://github.com/scarf005/Overhaul",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "d06d0f24ac4be9435ec72a96edc301953140b0ee",
+      "extract_path": "Overhaul-0.0.2/overhaul",
+      "url": "https://github.com/scarf005/Overhaul/archive/refs/tags/v0.0.2.zip"
+    },
+    "version": "0.0.2"
+  },
+  "overhaul_additions": {
+    "display_name": "Overhaul Additions",
+    "homepage": "https://github.com/scarf005/Overhaul",
+    "license": "ALL-RIGHTS-RESERVED",
+    "package_type": "mod",
+    "source": {
+      "commit_sha": "d06d0f24ac4be9435ec72a96edc301953140b0ee",
+      "extract_path": "Overhaul-0.0.2/overhaul_additions",
+      "url": "https://github.com/scarf005/Overhaul/archive/refs/tags/v0.0.2.zip"
+    },
+    "version": "0.0.2"
+  }
+}

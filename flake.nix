@@ -28,6 +28,15 @@
     #   tlg/   Cataclysm-TLG/Cataclysm-TLG, an independent fork with
     #          its own release cadence, pinned to a dated tag for the
     #          same reason.
+    #
+    #   cbn/   cataclysmbn/Cataclysm-BN, a third fork with the same
+    #          no-AI policy. Two tracks for the same reason as CDDA's:
+    #
+    #            cataclysm-bn         stable, pinned to the v0.13.0
+    #                                 release tag
+    #            cataclysm-bn-master  development, follows the master
+    #                                 branch, so nix flake update moves
+    #                                 it
     cataclysm-dda = {
       url = "github:CleverRaven/Cataclysm-DDA/0.I-1";
       flake = false;
@@ -38,6 +47,14 @@
     };
     cataclysm-tlg = {
       url = "github:Cataclysm-TLG/Cataclysm-TLG/cataclysm-tlg-1.0-2026-10-16-0752";
+      flake = false;
+    };
+    cataclysm-bn = {
+      url = "github:cataclysmbn/Cataclysm-BN/v0.13.0";
+      flake = false;
+    };
+    cataclysm-bn-master = {
+      url = "github:cataclysmbn/Cataclysm-BN";
       flake = false;
     };
   };
@@ -51,6 +68,7 @@
       imports = [
         ./cdda
         ./tlg
+        ./cbn
       ];
 
       systems = [
