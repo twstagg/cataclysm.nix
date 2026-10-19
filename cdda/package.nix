@@ -136,16 +136,32 @@ stdenv.mkDerivation (
       patchShebangs lang/
     '';
 
-    env = {
-      # gcc 16 (nixpkgs-unstable) grew -Werror=sfinae-incomplete, and
-      # stable 0.I predates upstream's own -Wno-error=sfinae-incomplete
-      # (master and TLG both carry it in their Makefiles), so old
-      # sources hard-fail on src/vehicle.h. NIX_CFLAGS_COMPILE is
-      # appended after the Makefile's flags, so this wins over -Werror.
-      # Harmless once the stable tag moves; drop it then.
-      NIX_CFLAGS_COMPILE = "-Wno-error=sfinae-incomplete";
-    }
-    // lib.optionalAttrs (tiles && useSdl3) {
+    # gcc 16 grew -Werror=sfinae-incomplete, and the stable 0.I sources
+    # predate upstream's own -Wno-error= for it (master and TLG carry it
+    # in their Makefiles), so on gcc 16 they hard-fail on
+    # src/vehicle.h. NIX_CFLAGS_COMPILE is appended after the Makefile's
+    # flags, so this wins over -Werror.
+    #
+    # Probed rather than unconditional: an older compiler does not know
+    # the flag and rejects it as an unknown-warning error, and this
+    # package is built from other nixpkgs pins too (a home-manager
+    # config consuming this flake builds it with its own gcc). Harmless
+    # once the stable tag moves; drop it then.
+    preConfigure = ''
+      # Probe with a real file, not stdin: gcc 16 rejects stdin without
+      # -x c++, which would look like "flag unsupported" and silently
+      # drop the relaxation this build needs.
+      probe="$(mktemp -d)/probe.cpp"
+      echo 'int main() {}' > "$probe"
+      if $CXX -Werror=sfinae-incomplete -fsyntax-only "$probe" >/dev/null 2>&1; then
+        echo "adding -Wno-error=sfinae-incomplete"
+        export NIX_CFLAGS_COMPILE="''${NIX_CFLAGS_COMPILE:-} -Wno-error=sfinae-incomplete"
+      else
+        echo "compiler lacks -Wsfinae-incomplete; nothing to relax"
+      fi
+    '';
+
+    env = lib.optionalAttrs (tiles && useSdl3) {
       # The Makefile invokes this by bare name; be explicit anyway.
       # (SDL2-era sources never call the shader script, so no GLSLANG then.)
       GLSLANG = lib.getExe' glslang "glslangValidator";
