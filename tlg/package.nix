@@ -134,10 +134,11 @@ stdenv.mkDerivation (finalAttrs: {
   postInstall =
     optionalString true ''
       # The Makefile installs the zzip CLI as bin/zzip, but the game
-      # links zzip as a library and never runs it; the CLI is a shell
-      # convenience tool. Rename it per game: two games installed side
-      # by side (home-manager's buildEnv refuses conflicting
-      # subpaths) would otherwise collide on bin/zzip.
+      # links zzip as a library and never executes the CLI itself (no
+      # popen/system references to it in src/). The CLI is a shell
+      # convenience tool, and two games installed side by side would
+      # collide on bin/zzip in a home-manager buildEnv, so rename it
+      # per game.
       if [ -f "$out/bin/zzip" ]; then
         mv "$out/bin/zzip" "$out/bin/zzip-tlg"
       fi
