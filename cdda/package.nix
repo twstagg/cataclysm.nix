@@ -206,7 +206,17 @@ stdenv.mkDerivation (
     ];
 
     postInstall =
-      optionalString buildTests ''
+      optionalString true ''
+        # The Makefile installs the zzip CLI as bin/zzip, but the game
+        # links zzip as a library and never runs it; the CLI is a shell
+        # convenience tool. Rename it per game: two games installed side
+        # by side (home-manager's buildEnv refuses conflicting
+        # subpaths) would otherwise collide on bin/zzip.
+        if [ -f "$out/bin/zzip" ]; then
+          mv "$out/bin/zzip" "$out/bin/zzip-cdda"
+        fi
+      ''
+      + optionalString buildTests ''
         # tests/ has no install rule for the binary and `make install`
         # takes only the game, so ship the Catch2 binary to the test
         # output here.

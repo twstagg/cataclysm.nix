@@ -74,105 +74,112 @@ let
 
   variantSuffix = concatStrings (optionals tiles [ "-tiles" ] ++ optionals sound [ "-sound" ]);
 in
-stdenv.mkDerivation (
-  finalAttrs:
-  {
-    pname = "cataclysm-tlg" + variantSuffix;
-    inherit version src;
+stdenv.mkDerivation (finalAttrs: {
+  pname = "cataclysm-tlg" + variantSuffix;
+  inherit version src;
 
-    # gettext: msgfmt for lang/*.po -> lang/*.mo. No python: TLG has no
-    # shader script or codegen step in the default goal.
-    nativeBuildInputs = [
-      pkg-config
-      gettext
-    ];
+  # gettext: msgfmt for lang/*.po -> lang/*.mo. No python: TLG has no
+  # shader script or codegen step in the default goal.
+  nativeBuildInputs = [
+    pkg-config
+    gettext
+  ];
 
-    buildInputs = [
-      zlib
-      bzip2
-      gettext
-      # LIBBACKTRACE=1 links -lbacktrace and includes <backtrace.h>
-      # (see the makeFlags note on release parity).
-      libbacktrace
-    ]
-    ++ gameDeps;
+  buildInputs = [
+    zlib
+    bzip2
+    gettext
+    # LIBBACKTRACE=1 links -lbacktrace and includes <backtrace.h>
+    # (see the makeFlags note on release parity).
+    libbacktrace
+  ]
+  ++ gameDeps;
 
-    strictDeps = true;
+  strictDeps = true;
 
-    postPatch = ''
-      patchShebangs lang/
+  postPatch = ''
+    patchShebangs lang/
+  '';
+
+  makeFlags = [
+    "PREFIX=${placeholder "out"}"
+    "VERSION=${finalAttrs.version}"
+    "LOCALIZE=1"
+    "LANGUAGES=all"
+    # Release parity with .github/workflows/release.yml, which builds
+    # ... BACKTRACE=1 LIBBACKTRACE=1 PCH=0 bindist. BACKTRACE=1 is the
+    # Makefile default on Linux (adds -DBACKTRACE, -rdynamic); this
+    # adds the libbacktrace variant (-DLIBBACKTRACE, -lbacktrace).
+    # PCH=0 matches CI (precompiled headers off; pure build-time
+    # difference, same output).
+    "BACKTRACE=1"
+    "LIBBACKTRACE=1"
+    "PCH=0"
+    # TLG's default goal includes the json style gate (LINTJSON=1 by
+    # default on RELEASE builds): json_formatter rewrites any
+    # non-canonical data/*.json and exits nonzero, failing the build.
+    # TLG release tags ship non-canonical JSON (their "json-fixes"
+    # PRs land unformatted files), and in a Nix build the rewrite path
+    # is useless anyway: the source is read-only, and we would not
+    # want silently-reformatted data in the store output. Upstream CI
+    # sidesteps the gate the same way, by building `bindist` rather
+    # than `all`.
+    "LINTJSON=0"
+    (if useXdgDir then "USE_XDG_DIR=1" else "USE_HOME_DIR=1")
+  ]
+  ++ optionals (!debug) [ "RELEASE=1" ]
+  ++ optionals tiles [ "TILES=1" ]
+  ++ optionals sound [ "SOUND=1" ];
+
+  postInstall =
+    optionalString true ''
+      # The Makefile installs the zzip CLI as bin/zzip, but the game
+      # links zzip as a library and never runs it; the CLI is a shell
+      # convenience tool. Rename it per game: two games installed side
+      # by side (home-manager's buildEnv refuses conflicting
+      # subpaths) would otherwise collide on bin/zzip.
+      if [ -f "$out/bin/zzip" ]; then
+        mv "$out/bin/zzip" "$out/bin/zzip-tlg"
+      fi
+    ''
+    + optionalString tiles ''
+      substituteInPlace $out/share/applications/com.cataclysm-tlg.cataclysm-tlg.desktop \
+        --replace-fail "Exec=cataclysm-tlg-tiles" "Exec=$out/bin/cataclysm-tlg-tiles"
+    ''
+    + optionalString (extraSoundpacks != [ ]) ''
+      # Merge contents into the target dir (mkdir -p + cp src/.), never
+      # nest: make install already ships in-tree sound/ (Basic), and
+      # cp -R src dst/ into an existing dir would create
+      # dst/<store-path>/ with a duplicate soundpack.txt. Merging with
+      # overwrite mirrors release.yml (mv CC-Sounds into data/sound).
+      ${lib.concatMapStrings (s: ''
+        mkdir -p $out/share/cataclysm-tlg/sound/${s.soundpackDir}
+        cp -R --no-preserve=ownership ${s}/. $out/share/cataclysm-tlg/sound/${s.soundpackDir}/
+      '') extraSoundpacks}
     '';
 
-    makeFlags = [
-      "PREFIX=${placeholder "out"}"
-      "VERSION=${finalAttrs.version}"
-      "LOCALIZE=1"
-      "LANGUAGES=all"
-      # Release parity with .github/workflows/release.yml, which builds
-      # ... BACKTRACE=1 LIBBACKTRACE=1 PCH=0 bindist. BACKTRACE=1 is the
-      # Makefile default on Linux (adds -DBACKTRACE, -rdynamic); this
-      # adds the libbacktrace variant (-DLIBBACKTRACE, -lbacktrace).
-      # PCH=0 matches CI (precompiled headers off; pure build-time
-      # difference, same output).
-      "BACKTRACE=1"
-      "LIBBACKTRACE=1"
-      "PCH=0"
-      # TLG's default goal includes the json style gate (LINTJSON=1 by
-      # default on RELEASE builds): json_formatter rewrites any
-      # non-canonical data/*.json and exits nonzero, failing the build.
-      # TLG release tags ship non-canonical JSON (their "json-fixes"
-      # PRs land unformatted files), and in a Nix build the rewrite path
-      # is useless anyway: the source is read-only, and we would not
-      # want silently-reformatted data in the store output. Upstream CI
-      # sidesteps the gate the same way, by building `bindist` rather
-      # than `all`.
-      "LINTJSON=0"
-      (if useXdgDir then "USE_XDG_DIR=1" else "USE_HOME_DIR=1")
-    ]
-    ++ optionals (!debug) [ "RELEASE=1" ]
-    ++ optionals tiles [ "TILES=1" ]
-    ++ optionals sound [ "SOUND=1" ];
+  dontStrip = debug;
+  enableParallelBuilding = true;
 
-    postInstall =
-      optionalString tiles ''
-        substituteInPlace $out/share/applications/com.cataclysm-tlg.cataclysm-tlg.desktop \
-          --replace-fail "Exec=cataclysm-tlg-tiles" "Exec=$out/bin/cataclysm-tlg-tiles"
-      ''
-      + optionalString (extraSoundpacks != [ ]) ''
-        # Merge contents into the target dir (mkdir -p + cp src/.), never
-        # nest: make install already ships in-tree sound/ (Basic), and
-        # cp -R src dst/ into an existing dir would create
-        # dst/<store-path>/ with a duplicate soundpack.txt. Merging with
-        # overwrite mirrors release.yml (mv CC-Sounds into data/sound).
-        ${lib.concatMapStrings (s: ''
-          mkdir -p $out/share/cataclysm-tlg/sound/${s.soundpackDir}
-          cp -R --no-preserve=ownership ${s}/. $out/share/cataclysm-tlg/sound/${s.soundpackDir}/
-        '') extraSoundpacks}
-      '';
+  passthru = {
+    isTiles = tiles;
+    isSound = sound;
+    inherit targetName;
+  };
 
-    dontStrip = debug;
-    enableParallelBuilding = true;
-
-    passthru = {
-      isTiles = tiles;
-      isSound = sound;
-      inherit targetName;
-    };
-
-    meta = {
-      description = "Post-apocalyptic survival roguelike; story-focused CDDA fork";
-      longDescription = ''
-        Cataclysm: The Last Generation is a single-player turn-based
-        postapocalyptic survival game based on Cataclysm: Dark Days
-        Ahead. It preserves Cataclysm's depth and plausibility while
-        foregrounding character progression and immersive life-sim
-        elements: uncover the truth about the Cataclysm, form a band of
-        survivors, and adapt via bionics or mutations.
-      '';
-      homepage = "https://cataclysmtlg.com/";
-      license = lib.licenses.cc-by-sa-30;
-      mainProgram = targetName;
-      platforms = lib.platforms.linux;
-    };
-  }
-)
+  meta = {
+    description = "Post-apocalyptic survival roguelike; story-focused CDDA fork";
+    longDescription = ''
+      Cataclysm: The Last Generation is a single-player turn-based
+      postapocalyptic survival game based on Cataclysm: Dark Days
+      Ahead. It preserves Cataclysm's depth and plausibility while
+      foregrounding character progression and immersive life-sim
+      elements: uncover the truth about the Cataclysm, form a band of
+      survivors, and adapt via bionics or mutations.
+    '';
+    homepage = "https://cataclysmtlg.com/";
+    license = lib.licenses.cc-by-sa-30;
+    mainProgram = targetName;
+    platforms = lib.platforms.linux;
+  };
+})
