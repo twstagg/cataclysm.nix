@@ -7,7 +7,8 @@
 # cdda/default.nix, runs the updater, and asserts exit codes, contents and
 # which external commands ran. Cases: unchanged-skip, revision-update,
 # sparse-preservation, malformed-diagnostics, fetch-failure,
-# interrupted-repair, multi-hash ambiguity, unexpected-success.
+# interrupted-repair, multi-hash ambiguity, atomic-rollback, unexpected-success,
+# unknown-arg, phase2-failure-restores, verification-failure-restores.
 set -u
 
 UPDATER="$1"
@@ -338,5 +339,82 @@ t_multihash
 t_atomicity
 t_unexpected_ok
 
+
+t_unknown_arg() {
+  new_case
+  export MOCK_HEAD_ERK="$SHA_OLD_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/MShockXotto+"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
+  rc="$(run_updater --dry-run)"
+  [ "$rc" -ne 0 ] || {
+    bad "unknown-arg: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
+    bad "unknown-arg: file modified"
+    return
+  }
+  grep -q "unknown argument" "$T/out.txt" || {
+    bad "unknown-arg: no clear error"
+    return
+  }
+  ok "unknown-arg"
+}
+
+t_phase2_restore() {
+  new_case
+  export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
+  export MOCK_NIX_ERK=got MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_B"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/MShockXotto+"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
+  # Fails in phase 2, after the placeholder hash and the new rev are
+  # already staged: only the trap can put the file back.
+  rc="$(UPDATER_TEST_FAULT=fail-after-stage run_updater)"
+  [ "$rc" -ne 0 ] || {
+    bad "phase2-restore: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
+    bad "phase2-restore: pins not restored"
+    diff "$T/before.nix" "$T/wt/cdda/default.nix"
+    return
+  }
+  grep -qF "$FAKE" "$T/wt/cdda/default.nix" && {
+    bad "phase2-restore: placeholder survived"
+    return
+  }
+  ok "phase2-failure-restores"
+}
+
+t_verification_restore() {
+  new_case
+  export MOCK_HEAD_ERK="$SHA_NEW_A" MOCK_HEAD_CUTE="$SHA_OLD_B"
+  export MOCK_NIX_ERK=got MOCK_NIX_CUTE=got MOCK_GOT_ERK="$HASH_NEW" MOCK_GOT_CUTE="$HASH_B"
+  fixture_flake "$SHA_OLD_A" "$HASH_A" "$SHA_OLD_B" "$HASH_B" "$T/wt/cdda/default.nix" '"gfx/MShockXotto+"'
+  cp "$T/wt/cdda/default.nix" "$T/before.nix"
+  # Leaves a placeholder where the real hash should be, so the
+  # post-write readback is what rejects it.
+  rc="$(UPDATER_TEST_FAULT=corrupt-hash run_updater)"
+  [ "$rc" -ne 0 ] || {
+    bad "verification-restore: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/cdda/default.nix" || {
+    bad "verification-restore: pins not restored"
+    return
+  }
+  grep -q "post-write verification failed" "$T/out.txt" || {
+    bad "verification-restore: not caught by readback"
+    cat "$T/out.txt"
+    return
+  }
+  ok "verification-failure-restores"
+}
+
+t_unknown_arg
+t_phase2_restore
+t_verification_restore
+
 echo "pass=$PASS fail=$FAIL"
+
 [ "$FAIL" -eq 0 ]

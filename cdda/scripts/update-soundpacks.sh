@@ -43,9 +43,12 @@ die() {
 cd "$(git rev-parse --show-toplevel)"
 FLAKE="cdda/default.nix"
 CHECK_ONLY=0
-if [ "${1-}" = "--check" ]; then
-  CHECK_ONLY=1
-fi
+case "${1-}" in
+  "") ;;
+  --check) CHECK_ONLY=1 ;;
+  *) die "unknown argument '$1' (expected no arguments or --check)" ;;
+esac
+[ "$#" -le 1 ] || die "too many arguments (expected no arguments or --check)"
 
 # owner, repo, and the probe package whose fetch proves the hash.
 SOURCES="Fris0uman CDDA-Soundpacks .#cdda-soundpack-cc-sounds"
@@ -164,6 +167,17 @@ fi
 # a verification pass confirms every planned pin afterwards.
 backup="$(mktemp)"
 cp "$FLAKE" "$backup"
+restore() {
+  # Clear the trap first: restoring is the last thing that should run,
+  # and a failure inside it must not recurse.
+  trap - ERR
+  cp "$backup" "$FLAKE"
+  rm -f "$backup"
+}
+# apply_ok handles the expected probe failures; this catches everything
+# else (a sed error, a killed run) so a half-rewritten pin file with a
+# placeholder hash cannot survive.
+trap 'restore; exit 1' ERR
 apply_ok=1
 for ((i = 0; i < n_src; i++)); do
   if [ "${p_action[$i]}" = "skip" ]; then
@@ -185,12 +199,26 @@ for ((i = 0; i < n_src; i++)); do
     else
       apply_ok=0
     fi
+    # Fault injection for the test suite, which cannot otherwise reach
+    # the restore path: phase 2 only fails on a real write error, and
+    # the probe deliberately succeeds in a mocked run.
+    case "${UPDATER_TEST_FAULT-}" in
+      fail-after-stage)
+        echo "injected failure after staging" >&2
+        false
+        ;;
+      corrupt-hash)
+        # Write a placeholder so the post-write readback catches it.
+        set_hash "$repo" "$FAKE_HASH" || apply_ok=0
+        ;;
+      "") ;;
+      *) die "unknown UPDATER_TEST_FAULT '$UPDATER_TEST_FAULT'" ;;
+    esac
   fi
 done
 
 if [ "$apply_ok" -ne 1 ]; then
-  cp "$backup" "$FLAKE"
-  rm -f "$backup"
+  restore
   die "update failed; restored $FLAKE from backup"
 fi
 
@@ -202,24 +230,20 @@ for ((i = 0; i < n_src; i++)); do
   fi
   repo="${p_repo[$i]}"
   now_rev="$(current_rev "$repo")" || {
-    cp "$backup" "$FLAKE"
-    rm -f "$backup"
+    restore
     die "post-write readback failed for $repo; restored from backup"
   }
   now_hash="$(current_hash "$repo")" || {
-    cp "$backup" "$FLAKE"
-    rm -f "$backup"
+    restore
     die "post-write readback failed for $repo; restored from backup"
   }
   if [ "$now_rev" != "${p_head[$i]}" ] || ! is_sri_hash "$now_hash" || [ "$now_hash" = "$FAKE_HASH" ]; then
-    cp "$backup" "$FLAKE"
-    rm -f "$backup"
+    restore
     die "post-write verification failed for $repo; restored from backup"
   fi
 done
 if grep -qF "$FAKE_HASH" "$FLAKE"; then
-  cp "$backup" "$FLAKE"
-  rm -f "$backup"
+  restore
   die "placeholder hash survives in $FLAKE; restored from backup"
 fi
 rm -f "$backup"

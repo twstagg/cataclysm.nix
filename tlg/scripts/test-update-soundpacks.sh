@@ -7,7 +7,8 @@
 # Same harness as ../../cdda/scripts/test-update-soundpacks.sh, with
 # the CTLG pin in tlg/default.nix. Cases: unchanged-skip,
 # revision-update, malformed-diagnostics, fetch-failure,
-# interrupted-repair, multi-hash-ambiguity, unexpected-success.
+# interrupted-repair, multi-hash-ambiguity, unexpected-success,
+# unknown-arg, phase2-failure-restores, verification-failure-restores.
 set -u
 
 UPDATER="$1"
@@ -288,5 +289,83 @@ t_repair
 t_multihash
 t_unexpected_ok
 
+
+t_unknown_arg() {
+  new_case
+  export MOCK_HEAD_SND="$SHA_NEW"
+  export MOCK_NIX_SND=got MOCK_GOT_SND="$HASH_NEW"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/tlg/default.nix"
+  cp "$T/wt/tlg/default.nix" "$T/before.nix"
+  rc="$(run_updater --dry-run)"
+  [ "$rc" -ne 0 ] || {
+    bad "unknown-arg: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/tlg/default.nix" || {
+    bad "unknown-arg: file modified"
+    return
+  }
+  grep -q "unknown argument" "$T/out.txt" || {
+    bad "unknown-arg: no clear error"
+    return
+  }
+  ok "unknown-arg"
+}
+
+t_phase2_restore() {
+  new_case
+  export MOCK_HEAD_SND="$SHA_NEW"
+  export MOCK_NIX_SND=got MOCK_GOT_SND="$HASH_NEW"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/tlg/default.nix"
+  cp "$T/wt/tlg/default.nix" "$T/before.nix"
+  # Fails in phase 2, after the placeholder hash and the new rev are
+  # already staged: only the trap can put the file back.
+  rc="$(UPDATER_TEST_FAULT=fail-after-stage run_updater)"
+  [ "$rc" -ne 0 ] || {
+    bad "phase2-restore: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/tlg/default.nix" || {
+    bad "phase2-restore: pins not restored"
+    diff "$T/before.nix" "$T/wt/tlg/default.nix"
+    return
+  }
+  grep -qF "$FAKE" "$T/wt/tlg/default.nix" && {
+    bad "phase2-restore: placeholder survived"
+    return
+  }
+  ok "phase2-failure-restores"
+}
+
+t_verification_restore() {
+  new_case
+  export MOCK_HEAD_SND="$SHA_NEW"
+  export MOCK_NIX_SND=got MOCK_GOT_SND="$HASH_NEW"
+  fixture_flake "$SHA_OLD" "$HASH_OLD" "$T/wt/tlg/default.nix"
+  cp "$T/wt/tlg/default.nix" "$T/before.nix"
+  # Leaves a placeholder where the real hash should be, so the
+  # post-write readback is what rejects it.
+  rc="$(UPDATER_TEST_FAULT=corrupt-hash run_updater)"
+  [ "$rc" -ne 0 ] || {
+    bad "verification-restore: exit 0"
+    return
+  }
+  cmp -s "$T/before.nix" "$T/wt/tlg/default.nix" || {
+    bad "verification-restore: pins not restored"
+    return
+  }
+  grep -q "post-write verification failed" "$T/out.txt" || {
+    bad "verification-restore: not caught by readback"
+    cat "$T/out.txt"
+    return
+  }
+  ok "verification-failure-restores"
+}
+
+t_unknown_arg
+t_phase2_restore
+t_verification_restore
+
 echo "pass=$PASS fail=$FAIL"
+
 [ "$FAIL" -eq 0 ]
