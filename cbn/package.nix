@@ -111,9 +111,10 @@ let
       "cataclysm-bn-tiles"
     else
       "cataclysm-bn";
-
   # Credits match what the build ships: a soundless build gets the
   # mods-only list, the way release CI excludes soundpacks there.
+  # Evaluated at the Nix level, so it cannot go stale relative to the
+  # postInstall logic that consumes it.
   creditsFile = if sound then "external-mods-CREDITS.txt" else "external-mods-CREDITS-mods-only.txt";
 
   # Only src/version.cmake ever reaches the stand-in: it asks
