@@ -50,6 +50,7 @@
             tiles = true;
             sound = true;
             extraSoundpacks = [ soundpackPacks.cdda-soundpack-cc-sounds ];
+            buildTests = true;
           };
         in
         {
@@ -59,14 +60,13 @@
             tiles = false;
             sound = false;
           };
-          # Test binary with tiles + sound, same flags upstream CI uses.
-          # Keeps the tileset and soundpack lists non-empty so game-state
-          # init works inside tests.
-          cata-test = mk {
-            tiles = true;
-            sound = true;
-            buildTests = true;
-          };
+          # The test binary is the second output of the tiles
+          # derivation, not its own build: `make tests` compiles the
+          # game objects into cataclysm.a and the game links the same
+          # archive, so one make run produces both. Same flags as
+          # upstream CI uses, which keeps the tileset and soundpack
+          # lists non-empty so game-state init works inside tests.
+          cata-test = tiles.test;
           # Release-bundle equivalent: the game with every composed set
           # baked into share/cataclysm-dda/gfx. Empty list on stable by
           # design.
@@ -404,16 +404,34 @@
       // tilesets
       // soundpackPacks;
 
-      devShells.default = pkgs.mkShell {
+      # One shell per game, no default, so `nix develop .#cdda` is
+      # unambiguous. Carries the Makefile build deps (both SDL eras,
+      # since either track can be the one you are working on) plus the
+      # compose toolchain the tileset builders use.
+      devShells.cdda = pkgs.mkShell {
         packages = with pkgs; [
+          SDL2
+          SDL2_image
+          SDL2_mixer
+          SDL2_ttf
+          bzip2
+          gettext
           git
+          libbacktrace
+          ncurses
           nixfmt
+          pkg-config
           python3Packages.pyvips
+          sdl3
+          sdl3-image
+          sdl3-mixer
+          sdl3-ttf
           vips
+          zlib
         ];
 
         shellHook = ''
-          echo 'cataclysm.nix packaging shell. Try: nix build .#cdda-tileset-retrodays' 1>&2
+          echo 'cataclysm.nix CDDA shell. Try: nix build .#cdda-tileset-retrodays' 1>&2
         '';
       };
 

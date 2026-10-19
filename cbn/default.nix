@@ -222,9 +222,26 @@
       # runtime bits instead.
       devShells.cbn = pkgs.mkShell {
         packages = with pkgs; [
+          bzip2
           cmake
+          freetype
+          gettext
+          git
+          libbacktrace
+          libvorbis
+          ncurses
           ninja
           nixfmt
+          pkg-config
+          # shadercross on PATH so a local build can use
+          # -DBUILD_SHADERCROSS=OFF like the flake does.
+          sdl3-shadercross
+          sdl3
+          sdl3-image
+          sdl3-mixer
+          sdl3-ttf
+          sqlite
+          zlib
         ];
 
         shellHook = ''

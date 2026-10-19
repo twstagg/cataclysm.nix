@@ -205,6 +205,30 @@
             '';
       };
 
+      # One shell per game, no default. TLG is SDL2-only and ships its
+      # tilesets pre-composed, so no compose toolchain here.
+      devShells.tlg = pkgs.mkShell {
+        packages = with pkgs; [
+          SDL2
+          SDL2_image
+          SDL2_mixer
+          SDL2_ttf
+          bzip2
+          gettext
+          git
+          libbacktrace
+          libx11
+          ncurses
+          nixfmt
+          pkg-config
+          zlib
+        ];
+
+        shellHook = ''
+          echo 'cataclysm.nix TLG shell. Try: nix build .#tlg-tiles' 1>&2
+        '';
+      };
+
       apps.tlg-update-soundpacks =
         let
           updater = pkgs.writeShellApplication {

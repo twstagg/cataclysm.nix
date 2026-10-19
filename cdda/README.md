@@ -15,10 +15,17 @@ nix run .#cdda-curses
 
 User files (config, saves) live in `~/.cataclysm-dda` by default; the derivation exposes `useXdgDir = true` for XDG placement.
 
+```sh
+nix develop .#cdda          # Makefile build deps + the compose toolchain
+```
+
 ## Tests
 
 ```sh
-nix build .#cdda-cata-test    # Catch2 test binary (tiles+sound flavor, like upstream CI)
+nix build .#cdda-cata-test    # Catch2 test binary: the second output of
+                              # cdda-tiles, not a separate build (make
+                              # tests compiles cataclysm.a, the game
+                              # links the same archive)
 nix flake check          # builds everything + runs the [calendar] smoke suite
 ```
 

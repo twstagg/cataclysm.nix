@@ -5,6 +5,7 @@ TLG is a story-focused content fork of CDDA sharing its Makefile build system. I
 ```sh
 nix run .#tlg-tiles       # SDL2 tiles + sound (CC-Sounds bundled)
 nix run .#tlg-curses      # ncurses text build
+nix develop .#tlg         # Makefile build deps (SDL2 era)
 ```
 
 Differences from the CDDA chunk, all verified against the fork:

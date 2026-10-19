@@ -27,6 +27,11 @@ input. There is no default package: outputs are prefixed per game (`cdda-*`, `tl
 Each directory is a self-contained flake-parts chunk owning its derivations, pin tooling,
 checks, dev shell and docs: `flake.nix` stays a thin root (inputs, systems, imports).
 
+## Dev shells
+
+One shell per game, no default, each carrying that game's build deps:
+`nix develop .#cdda`, `.#tlg`, `.#cbn`.
+
 ## Tracks
 
 CDDA and BN each ship two tracks side by side, so a stable install and a bleeding-edge

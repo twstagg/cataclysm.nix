@@ -73,28 +73,30 @@ let
 
   gameDeps =
     if tiles then
-      (if useSdl3 then
-        [
-          sdl3
-          sdl3-image
-          sdl3-ttf
-          freetype
-        ]
-        ++ optionals sound [ sdl3-mixer ]
-      else
-        [
-          SDL2
-          SDL2_image
-          SDL2_ttf
-          freetype
-          # imgui_impl_sdl2 + sdltiles include SDL_syswm.h, which pulls
-          # X11/Xlib.h; real SDL2 propagated x11 headers transitively,
-          # sdl2-compat (what nixpkgs' SDL2 resolves to) does not.
-          # nixpkgs' own SDL2-era derivation adds libx11 for the same
-          # reason.
-          libx11
-        ]
-        ++ optionals sound [ SDL2_mixer ])
+      (
+        if useSdl3 then
+          [
+            sdl3
+            sdl3-image
+            sdl3-ttf
+            freetype
+          ]
+          ++ optionals sound [ sdl3-mixer ]
+        else
+          [
+            SDL2
+            SDL2_image
+            SDL2_ttf
+            freetype
+            # imgui_impl_sdl2 + sdltiles include SDL_syswm.h, which pulls
+            # X11/Xlib.h; real SDL2 propagated x11 headers transitively,
+            # sdl2-compat (what nixpkgs' SDL2 resolves to) does not.
+            # nixpkgs' own SDL2-era derivation adds libx11 for the same
+            # reason.
+            libx11
+          ]
+          ++ optionals sound [ SDL2_mixer ]
+      )
     else
       [ ncurses ];
 
@@ -134,21 +136,20 @@ stdenv.mkDerivation (
       patchShebangs lang/
     '';
 
-    env =
-      {
-        # gcc 16 (nixpkgs-unstable) grew -Werror=sfinae-incomplete, and
-        # stable 0.I predates upstream's own -Wno-error=sfinae-incomplete
-        # (master and TLG both carry it in their Makefiles), so old
-        # sources hard-fail on src/vehicle.h. NIX_CFLAGS_COMPILE is
-        # appended after the Makefile's flags, so this wins over -Werror.
-        # Harmless once the stable tag moves; drop it then.
-        NIX_CFLAGS_COMPILE = "-Wno-error=sfinae-incomplete";
-      }
-      // lib.optionalAttrs (tiles && useSdl3) {
-        # The Makefile invokes this by bare name; be explicit anyway.
-        # (SDL2-era sources never call the shader script, so no GLSLANG then.)
-        GLSLANG = lib.getExe' glslang "glslangValidator";
-      };
+    env = {
+      # gcc 16 (nixpkgs-unstable) grew -Werror=sfinae-incomplete, and
+      # stable 0.I predates upstream's own -Wno-error=sfinae-incomplete
+      # (master and TLG both carry it in their Makefiles), so old
+      # sources hard-fail on src/vehicle.h. NIX_CFLAGS_COMPILE is
+      # appended after the Makefile's flags, so this wins over -Werror.
+      # Harmless once the stable tag moves; drop it then.
+      NIX_CFLAGS_COMPILE = "-Wno-error=sfinae-incomplete";
+    }
+    // lib.optionalAttrs (tiles && useSdl3) {
+      # The Makefile invokes this by bare name; be explicit anyway.
+      # (SDL2-era sources never call the shader script, so no GLSLANG then.)
+      GLSLANG = lib.getExe' glslang "glslangValidator";
+    };
 
     makeFlags = [
       "PREFIX=${placeholder "out"}"
@@ -179,17 +180,23 @@ stdenv.mkDerivation (
     ++ optionals tiles [ "TILES=1" ]
     ++ optionals sound [ "SOUND=1" ];
 
-    # Default goal builds game + locales + shader stamps + zzip; for the test
-    # package switch to the `tests` goal (TESTS=1 above wires it up). `prefix`
-    # generates src/prefix.h from PREFIX. `all` pulls it in but `tests`
-    # does not, so ask for it here.
+    # One make invocation covers game and tests: `tests` builds
+    # cataclysm.a (every game object) and the game target links that
+    # same archive, so the test output costs no extra compile. `prefix`
+    # generates src/prefix.h from PREFIX, which `tests` does not pull in.
     buildFlags = optionals buildTests [
       "prefix"
       "tests"
     ];
 
     postInstall =
-      optionalString (tiles && !buildTests) ''
+      optionalString buildTests ''
+        # tests/ has no install rule for the binary and `make install`
+        # takes only the game, so ship the Catch2 binary to the test
+        # output here.
+        install -Dm755 tests/cata_test "$test/bin/cata_test"
+      ''
+      + optionalString (tiles && !buildTests) ''
         substituteInPlace $out/share/applications/org.cataclysmdda.CataclysmDDA.desktop \
           --replace-fail "Exec=cataclysm-tiles" "Exec=$out/bin/cataclysm-tiles"
       ''
@@ -237,17 +244,16 @@ stdenv.mkDerivation (
       '';
       homepage = "https://cataclysmdda.org/";
       license = lib.licenses.cc-by-sa-30;
-      mainProgram = if buildTests then "cata_test" else targetName;
+      mainProgram = targetName;
       platforms = lib.platforms.linux;
     };
   }
   // lib.optionalAttrs buildTests {
-    # The test build must not run the Makefile's install target (it would
-    # compile the game binary too); just ship the cata_test executable.
-    installPhase = ''
-      runHook preInstall
-      install -Dm755 tests/cata_test "$out/bin/cata_test"
-      runHook postInstall
-    '';
+    # Second output of the same derivation: game and Catch2 binary come
+    # out of one make run, sharing cataclysm.a.
+    outputs = [
+      "out"
+      "test"
+    ];
   }
 )

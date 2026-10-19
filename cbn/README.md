@@ -13,6 +13,7 @@ nix run .#cbn-tiles           # SDL3 + sound, the stable v0.13.0 tag
 nix run .#cbn-curses          # ncurses text build
 nix build .#cbn-master-tiles  # development branch
 nix build .#cbn-cata-test
+nix develop .#cbn          # CMake build deps (SDL3 stack, shadercross)
 ```
 
 ## Tracks
