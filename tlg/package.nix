@@ -12,12 +12,17 @@
 #
 # PREFIX is baked in at compile time (-DPREFIX -DDATA_DIR_PREFIX), so
 # the binary reads data from $out/share/cataclysm-tlg and locales from
-# $out/share/locale. No patches required.
+# $out/share/locale. No patches required: the one place where an install
+# layout diverges from upstream's expectations (the CWD-relative
+# VERSION.txt the version banner is read from) is reconciled at wrap
+# time rather than with a patch. See postInstall/postFixup.
 {
   lib,
   stdenv,
   pkg-config,
   gettext,
+  # --chdir wrapper for the CWD-relative VERSION.txt (see postFixup)
+  makeWrapper,
   ncurses,
   zlib,
   bzip2,
@@ -41,6 +46,11 @@
   # Basic pack. Mirrors TLG's release.yml, which drops CTLG-Soundpacks'
   # CC-Sounds into data/sound for every sound-enabled build.
   extraSoundpacks ? [ ],
+  # Full commit sha for VERSION.txt's commit fields. Nothing in the game
+  # parses them (only "build number:" is read); they are what a player
+  # pastes into a bug report, so carry the full sha rather than the
+  # short rev in `version`. Empty for inputs with no rev (a local path).
+  gitRev ? "",
   version,
   src,
 }:
@@ -79,10 +89,12 @@ stdenv.mkDerivation (finalAttrs: {
   inherit version src;
 
   # gettext: msgfmt for lang/*.po -> lang/*.mo. No python: TLG has no
-  # shader script or codegen step in the default goal.
+  # shader script or codegen step in the default goal. makeWrapper: the
+  # --chdir wrapper in postFixup.
   nativeBuildInputs = [
     pkg-config
     gettext
+    makeWrapper
   ];
 
   buildInputs = [
@@ -133,6 +145,24 @@ stdenv.mkDerivation (finalAttrs: {
 
   postInstall =
     optionalString true ''
+      # TLG reports its version at runtime, not compile time:
+      # src/version.cpp opens the CWD-relative "VERSION.txt", returns the
+      # value of its "build number:" line, and falls back to the literal
+      # "unknown" when the file is not there. The VERSION= makeFlag is
+      # inert for TLG (it commented out the VERSION/GIT_VERSION code path
+      # that CDDA 0.I and BN still use, and its Makefile never adds
+      # -DVERSION), so this file is the only way to name the build.
+      #
+      # Upstream CI writes it in the release workflow and `make bindist`
+      # ships it beside the binary, where cataclysm-launcher's
+      # `cd "$(dirname $0)"` makes that directory the CWD. `make install`
+      # writes no such file and installs none, hence: write it here, and
+      # see postFixup for how the data dir becomes the CWD. Only
+      # "build number:" is parsed; the commit lines are human-facing and
+      # deliberately upstream's format.
+      printf 'build type: Release\nbuild number: ${version}\ncommit sha: ${gitRev}\ncommit url: https://github.com/Cataclysm-TLG/Cataclysm-TLG/commit/${gitRev}\n' > "$out/share/cataclysm-tlg/VERSION.txt"
+    ''
+    + optionalString true ''
       # The Makefile installs the zzip CLI as bin/zzip, but the game
       # links zzip as a library and never executes the CLI itself (no
       # popen/system references to it in src/). The CLI is a shell
@@ -158,6 +188,25 @@ stdenv.mkDerivation (finalAttrs: {
         cp -R --no-preserve=ownership ${s}/. $out/share/cataclysm-tlg/sound/${s.soundpackDir}/
       '') extraSoundpacks}
     '';
+
+  # The version file above is found by CWD, and a `make install` layout
+  # splits bin/ from the data dir, so a desktop entry (Exec= with no
+  # Path=, so CWD is $HOME) or a bare `nix run` starts the game with no
+  # VERSION.txt in reach and the banner/title/`--version` all say
+  # "unknown". Upstream's answer for its own bundle is
+  # cataclysm-launcher, which cds into the bundle directory before exec;
+  # do the same thing here for the data dir, which is where VERSION.txt
+  # lives. Nothing else depends on the CWD: data and locales are
+  # compile-time absolute (PREFIX + DATA_DIR_PREFIX) and player files go
+  # under the user dir (USE_HOME_DIR/USE_XDG_DIR). wrapProgram keeps the
+  # name and path of the binary, so meta.mainProgram and the .desktop
+  # Exec= above keep pointing at the same thing. The generated wrapper is
+  # `bash -e` ending in `exec -a "$0"`, so exit status and signals pass
+  # through untouched, and a missing data dir aborts the launch rather
+  # than starting a game that could not find its own data.
+  postFixup = ''
+    wrapProgram "$out/bin/${targetName}" --chdir "$out/share/cataclysm-tlg"
+  '';
 
   dontStrip = debug;
   enableParallelBuilding = true;

@@ -52,6 +52,9 @@
           // {
             inherit version;
             src = tlgSrc;
+            # Full sha for VERSION.txt's commit fields (the banner itself
+            # only reads `version`); tags are immutable so this is stable.
+            gitRev = inputs.cataclysm-tlg.rev or "";
           }
         );
 
@@ -81,6 +84,16 @@
           installName = "CC-Sounds";
           version = tlgSoundpacksVersion;
         };
+      };
+
+      # Sound build carries CTLG's CC-Sounds (release parity). The twelve
+      # tilesets need no bundling: make install already ships them
+      # in-tree, pre-composed. Bound here (not inline in packages) so the
+      # version-banner check can reference it.
+      tlgTiles = mkTlg {
+        tiles = true;
+        sound = true;
+        extraSoundpacks = [ tlgSoundpackPacks.tlg-soundpack-cc-sounds ];
       };
 
       # json_formatter.cgi: TLG's canonical JSON formatter, built with
@@ -156,14 +169,10 @@
     in
     {
       packages = {
-        # Sound builds carry CTLG's CC-Sounds (release parity). The
+        # Sound build carries CTLG's CC-Sounds (release parity). The
         # twelve tilesets need no bundling: make install already
         # ships them in-tree, pre-composed.
-        tlg-tiles = mkTlg {
-          tiles = true;
-          sound = true;
-          extraSoundpacks = [ tlgSoundpackPacks.tlg-soundpack-cc-sounds ];
-        };
+        tlg-tiles = tlgTiles;
         tlg-curses = mkTlg {
           tiles = false;
           sound = false;
@@ -202,6 +211,34 @@
           ${tlgChkjson}/bin/chkjson
           touch $out
         '';
+
+        # The banner, window title, `--version`, memorial headers and
+        # crash logs all come from getVersionString(), which reads the
+        # CWD-relative VERSION.txt and falls back to the literal
+        # "unknown" when it finds none (see ./package.nix). The --chdir
+        # wrapper is what makes the shipped data dir the CWD, so assert
+        # the game reports the flake revision: a missing file, a wrong
+        # directory or an unwrapped binary all land on "unknown". Safe
+        # to run headless, because main() handles --version and exits
+        # ahead of the data/user dir existence checks; HOME still has to
+        # be set, since PATH_INFO::init_user_dir() aborts without it and
+        # the build sandbox has none.
+        tlg-version-banner =
+          pkgs.runCommand "ctlg-version-banner"
+            {
+              nativeBuildInputs = [ pkgs.gnugrep ];
+            }
+            ''
+              export HOME="$NIX_BUILD_TOP"
+              ver="$(${tlgTiles}/bin/${tlgTiles.targetName} --version 2>&1)"
+              printf '%s\n' "$ver"
+              # Whole-line match: an unresolved version prints this same
+              # line with "unknown" where the revision should be, and
+              # other lines of --version output can legitimately contain
+              # that word.
+              printf '%s' "$ver" | grep -Fx 'Cataclysm: The Last Generation: ${version}'
+              touch $out
+            '';
 
         # Unit tests for the soundpack updater with mocked git/nix. No
         # network, no builds; same harness as the CDDA updater suites.
