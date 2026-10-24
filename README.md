@@ -27,6 +27,13 @@ input. There is no default package: outputs are prefixed per game (`cdda-*`, `tl
 Each directory is a self-contained flake-parts chunk owning its derivations, pin tooling,
 checks, dev shell and docs: `flake.nix` stays a thin root (inputs, systems, imports).
 
+## Binary cache
+
+A public Cachix cache (`cataclysm-nix`) is configured in `flake.nix` via
+`nixConfig`, so Nix pulls prebuilt packages/checks automatically (with
+`--accept-flake-config` or an approval prompt). CI publishes to it on merges
+to `main` (see `.github/workflows/nix-cache.yml`).
+
 ## Dev shells
 
 One shell per game, no default, each carrying that game's build deps:

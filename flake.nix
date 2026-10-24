@@ -80,6 +80,15 @@
     };
   };
 
+  # Public binary cache for the flake packages and checks. Nix applies this
+  # config only after `--accept-flake-config` or an explicit approval
+  # prompt; CI accepts it in its nix setup. Without it everything still
+  # works, just from source.
+  nixConfig = {
+    extra-substituters = [ "https://cataclysm-nix.cachix.org" ];
+    extra-trusted-public-keys = [ "cataclysm-nix.cachix.org-1:EjFgb8mu1y0xM6pgPQyZEnL/PfkEZ2D0uhYUg9qHaI0=" ];
+  };
+
   outputs =
     inputs@{ flake-parts, nixpkgs, ... }:
     let
