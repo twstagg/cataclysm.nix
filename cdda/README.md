@@ -95,11 +95,12 @@ ln -s ./result ~/.cataclysm-dda/gfx/Retrodays
 
 ### Updating tileset pins
 
-Tilesets are now a flake input (`cdda-tilesets`, `cdda-cuteclysm` in the
-root `flake.nix`), so a plain `nix flake update` moves them forward and
-`nix flake check --no-build` validates the result. No probe-hash updater
-remains for tilesets. Bump when tilesets go stale: new game content
-without matching sprites falls back to ASCII/unknown glyphs in-game.
+Tilesets are now flake inputs (`cdda-tilesets`, `cdda-cuteclysm` in the
+root `flake.nix`), so `nix flake update cdda-tilesets` (or a plain
+`nix flake update`) moves them forward and `nix flake check --no-build`
+validates the result. No probe-hash updater remains for tilesets. Bump
+when tilesets go stale: new game content without matching sprites falls
+back to ASCII/unknown glyphs in-game.
 
 ## Soundpacks
 
@@ -124,7 +125,7 @@ Both eras bundle CC-Sounds (`Fris0uman/CDDA-Soundpacks`, `sound/CC-Sounds`, musi
 
 ```sh
 nix build .#cdda-soundpack-cc-sounds
-nix flake update                  # moves the CC-Sounds pin (now a flake input)
+nix flake update cdda-soundpacks  # moves the CC-Sounds pin (now a flake input)
 nix build .#checks.x86_64-linux.cdda-soundpacks-validate   # every pack has soundpack.txt
 ```
 

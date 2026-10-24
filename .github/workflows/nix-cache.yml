@@ -1,0 +1,56 @@
+name: Nix Cache
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: null
+
+permissions: {}
+
+concurrency:
+  group: nix-cache
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.repository == 'twstagg/cataclysm.nix' &&
+      (github.event_name == 'push' || github.ref == 'refs/heads/main')
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Check CACHIX_AUTH_TOKEN
+        env:
+          CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+        run: |
+          if [ -z "$CACHIX_AUTH_TOKEN" ]; then
+            echo "::error::repository secret CACHIX_AUTH_TOKEN is not set"
+            exit 1
+          fi
+
+      - name: Publish to Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: cataclysm-nix
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Build and publish all packages
+        run: |
+          packages=$(nix eval .#packages.x86_64-linux --apply 'p: builtins.attrNames p' --json)
+          nix build $(echo "$packages" | jq -r '.[] | ".#" + .')
+
+      - name: Build and publish the check environments
+        run: nix flake check

@@ -14,7 +14,7 @@ Differences from the CDDA chunk, all verified against the fork:
 - **SDL2 only**: no era switch. TLG predates CDDA's SDL3 switch and has no vendored imgui (the `libx11` fix for `SDL_syswm.h` headers still applies).
 - **Tilesets ship pre-composed in-tree** (12 sets in `gfx/`, synced from `CTLG-Tilesets` releases by upstream CI). Nothing to compose, nothing to merge.
 - **Version comes from the CWD, not the compiler**: TLG reads its version at runtime from a CWD-relative `VERSION.txt` (`src/version.cpp`, which returns the literal `unknown` when the file is missing). The `VERSION=` makeFlag that CDDA and BN rely on is inert for TLG: the fork commented out that code path and its Makefile never passes `-DVERSION`. `make install` writes no `VERSION.txt`, and upstream's own CWD contract is satisfied only by `cataclysm-launcher` (`cd "$(dirname $0)"` before exec), which `make install` does not install. So `package.nix` writes `share/cataclysm-tlg/VERSION.txt` from the flake pin and runs the game from that directory with `wrapProgram --chdir` — upstream's launcher trick, no patch, and the binary keeps its name and path. Skip it and the banner, window title, `--version`, memorial headers and crash logs all read `unknown`.
-- **No test binary**: the Catch2 suite was stripped at fork time, so there is no `tlg-test` and no calendar smoke. The TLG checks are `tlg-json-check` (builds the game's `chkjson` and runs the real loader over `data/json`), `tlg-soundpacks-validate` (manifest gate) and `tlg-version-banner` (the game reports the flake revision, not `unknown`).
+- **No test binary**: the Catch2 suite was stripped at fork time, so there is no `tlg-test` and no calendar smoke. The TLG checks are `tlg-json-check` (builds the game's `chkjson` and runs the real loader over `data/json`) and `tlg-soundpacks-validate` (manifest gate).
 - **Own soundpack repo**: `Cataclysm-TLG/CTLG-Soundpacks` (same `sound/CC-Sounds` layout, music via the `CTLG-Music-Packs` submodule), bundled into `tlg-tiles` the way release CI does.
 - **Filtered source**: `gameSource` drops `docs/`, `.git` and `.github/`, so a
   docs-only upstream commit does not invalidate the build.
@@ -24,7 +24,7 @@ Differences from the CDDA chunk, all verified against the fork:
 
 ```sh
 nix build .#tlg-soundpack-cc-sounds
-nix flake update                  # moves the CTLG-Soundpacks pin (now a flake input)
+nix flake update tlg-soundpacks   # moves the CTLG-Soundpacks pin (now a flake input)
 nix build .#checks.x86_64-linux.tlg-soundpacks-validate
 ```
 

@@ -1,0 +1,43 @@
+name: Nix Flake Check
+on:
+  pull_request: null
+  workflow_dispatch: null
+  push:
+    branches:
+      - main
+
+permissions: {}
+
+concurrency:
+  group: nix-flake-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flake-check:
+    name: Nix Flake Check
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      # Read-only pull: no authToken, so this job can never publish. The
+      # cache is populated by nix-cache.yml on merges to main.
+      - name: Pull from Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: cataclysm-nix
+        continue-on-error: true
+
+      - name: Nix flake check
+        run: nix flake check --show-trace

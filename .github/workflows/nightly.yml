@@ -1,0 +1,60 @@
+name: Nightly update
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nightly-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Pull from Cachix
+        uses: cachix/cachix-action@v17
+        with:
+          name: cataclysm-nix
+
+      - name: Configure git
+        run: |
+          git config user.name "Tristin Stagg"
+          git config user.email "tristinstagg@gmail.com"
+
+      - name: Detect release-tag bumps
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/detect-release-bumps.sh
+
+      - name: Run nix flake update
+        run: nix flake update
+
+      - name: Refresh registry mods
+        run: nix run .#cbn-update-registry-mods
+
+      - name: Commit and push
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: nightly pin update"
+          git push
