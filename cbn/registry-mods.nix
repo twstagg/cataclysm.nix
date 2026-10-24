@@ -87,10 +87,10 @@ let
   # identical fixed-output fetches dedupe to one store path). Rewritten
   # by ./scripts/update-registry-mods.sh; keep one entry per line, sorted.
   hashes = {
-    "cata" = "sha256-8J+k7baMNWOMXA0lxl7Cd8xXabTy0pD0J70HTOU44eQ=";
+    "cata" = "sha256-yTaLyfA0XyyIKQU2qmkNALNQK10xl5kdR54RUMZil5s=";
     "cbn_sky_island" = "sha256-jzt2qJe5FmJ1sxO6xPKA7cLjVHrQI39Cpb4lx94hKpo=";
     "jake_s_squirrel_mod" = "sha256-wsQt857uF4eHXbrXFJWU1TAOnF0QLBh+3eDj+loOKy8=";
-    "medieval_mod_reborn" = "sha256-fcxDzDxytOI8ur7MCVv72b+jU5gHg3Yjz7GVkRRyrQw=";
+    "medieval_mod_reborn" = "sha256-WIYVfD9m+xBpF83MzWslQPaWriOmMmxGnzRKs5ZLoaY=";
     "mst_extra" = "sha256-wCOYUOefqhhK6eHstX22oWgBmzHzusEpU3mFDYhT9Kk=";
     "ny_transformers" = "sha256-+r8rQTR6KUUvXsqxtP4I7IVSZIFeW/CHALTnebs+xm0=";
     "otopack_bn_mk_2" = "sha256-2RqpyW9LVz1Q+2v3qi/pM+Mq0yZMIen/Ki4+BMfpCbo=";
