@@ -83,6 +83,56 @@
         "type": "github"
       }
     },
+    "cdda-cuteclysm": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1777229448,
+        "narHash": "sha256-ZAZ3uAuav2H7CTI6CLHnnQIFMxNHQJV9HpgUcFhp5bc=",
+        "owner": "pixel-32",
+        "repo": "CDDA-tileset",
+        "rev": "3f06254658f48f3c01e5a29994c971f2a6e5fc8a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "pixel-32",
+        "repo": "CDDA-tileset",
+        "type": "github"
+      }
+    },
+    "cdda-soundpacks": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1791048545,
+        "narHash": "sha256-S5aZjQYG2LHnC2lJcVkcNn4p3CA/iAed99w250K/Wp4=",
+        "ref": "refs/heads/main",
+        "rev": "02b65460a808624b500013d4b9aa71dccd968817",
+        "revCount": 103,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Fris0uman/CDDA-Soundpacks"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Fris0uman/CDDA-Soundpacks"
+      }
+    },
+    "cdda-tilesets": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792481302,
+        "narHash": "sha256-/9UE8gRw92Q+5d5I8A6ei9wbPzWu9JDrkJReE5wMTBI=",
+        "owner": "I-am-Erk",
+        "repo": "CDDA-Tilesets",
+        "rev": "8518bbe4302c15928d3542aa817075079e7d6417",
+        "type": "github"
+      },
+      "original": {
+        "owner": "I-am-Erk",
+        "repo": "CDDA-Tilesets",
+        "type": "github"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -139,8 +189,30 @@
         "cataclysm-dda": "cataclysm-dda",
         "cataclysm-dda-master": "cataclysm-dda-master",
         "cataclysm-tlg": "cataclysm-tlg",
+        "cdda-cuteclysm": "cdda-cuteclysm",
+        "cdda-soundpacks": "cdda-soundpacks",
+        "cdda-tilesets": "cdda-tilesets",
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "tlg-soundpacks": "tlg-soundpacks"
+      }
+    },
+    "tlg-soundpacks": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1741914970,
+        "narHash": "sha256-LJo45x4jjtGtkhJC4RNfhIAHOOkdhF+8cXTRxbbgudo=",
+        "ref": "refs/heads/main",
+        "rev": "779390bba4bc4ab4f79c18897d15cb6aec640209",
+        "revCount": 80,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
       }
     }
   },

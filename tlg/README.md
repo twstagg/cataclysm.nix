@@ -24,15 +24,14 @@ Differences from the CDDA chunk, all verified against the fork:
 
 ```sh
 nix build .#tlg-soundpack-cc-sounds
-nix run .#tlg-update-soundpacks -- --check   # compare current vs HEAD, no changes
-nix run .#tlg-update-soundpacks              # bump the pin, verifying the hash
+nix flake update                  # moves the CTLG-Soundpacks pin (now a flake input)
 nix build .#checks.x86_64-linux.tlg-soundpacks-validate
 ```
 
-`./scripts/update-soundpacks.sh` is the same probe-hash updater the CDDA chunk uses, scoped to the TLG pin in `./default.nix`; `./scripts/test-update-soundpacks.sh` is its mocked suite (7 cases, no network or builds), wired as `checks.tlg-updater-soundpacks-tests`. A stale pack is benign: unknown sound ids never trigger, so new content just stays silent until the pin catches up.
+CTLG-Soundpacks is now a flake input (see root `flake.nix`), so `nix flake update` bumps it and no probe-hash updater remains. A stale pack is benign: unknown sound ids never trigger, so new content just stays silent until the pin catches up.
 
 ## How it works
 
 - `./package.nix`: `stdenv.mkDerivation` for `tiles`/`sound` (SDL2 stack with `libx11` for the `SDL_syswm.h` chain, ncurses otherwise), `PREFIX` baked in, `LANGUAGES=all LOCALIZE=1`, no patches. `BACKTRACE=1 LIBBACKTRACE=1 PCH=0 LINTJSON=0` mirror TLG's release CI line (libbacktrace crash backtraces, PCH off, no JSON style gate: TLG release tags ship non-canonical JSON and the gate could not auto-fix a read-only source anyway). `extraSoundpacks` merges packs into `share/cataclysm-tlg/sound/` with the same mkdir+cp idiom CDDA uses. `postInstall` writes the `VERSION.txt` the banner reads and `postFixup` runs the game from the data dir (`wrapProgram --chdir`) so that file is in the CWD.
-- `./default.nix`: game input handling (`version = "1.0+" + shortRev`), the CTLG-Soundpacks pin, `tlg-json-formatter` and `tlg-chkjson` (the `chkjson` target does not link as shipped: its `CHKJSON_SOURCES` omits `src/string_id.cpp`, so the derivation adds the TU with a make override), packages `tlg-tiles`/`tlg-curses`/`tlg-json-formatter`/`tlg-chkjson`/`tlg-soundpack-cc-sounds`, checks, and the `tlg-update-soundpacks` app.
+- `./default.nix`: game input handling (`version = "1.0+" + shortRev`), the CTLG-Soundpacks pin, `tlg-json-formatter` and `tlg-chkjson` (the `chkjson` target does not link as shipped: its `CHKJSON_SOURCES` omits `src/string_id.cpp`, so the derivation adds the TU with a make override), packages `tlg-tiles`/`tlg-curses`/`tlg-json-formatter`/`tlg-chkjson`/`tlg-soundpack-cc-sounds`, and checks. Soundpacks are now a flake input (see root `flake.nix`).
 - `./soundpack.nix`: isolates the pack subtree into `$out` (no compose step, packs ship as-is).

@@ -149,69 +149,21 @@
 
       composePy = stable.src + "/tools/gfx_tools/compose.py";
 
-      # Sparse checkouts of just the gfx/<set> dirs, same as the
-      # workflow's sparse-checkout of "gfx".
-      #
-      # Pins live in attrsets so derivation versions derive from the rev:
-      # a hand-written short rev goes stale the moment an updater moves
-      # the pin, and the store path then misnames its own contents.
-      tilesetsPin = {
-        owner = "I-am-Erk";
-        repo = "CDDA-Tilesets";
-        rev = "dfd8d69f388e6b9c2719b250845e51d8d30eb2cb";
-        sha256 = "sha256-lx0q3CZTpfPr+LiQeIBtZahQJifpCjxN7AnVQn2EeZU=";
-        sparseCheckout = [
-          "gfx/Altica"
-          "gfx/ASCII_Overmap"
-          "gfx/BrownLikeBears"
-          "gfx/Chibi_Ultica"
-          "gfx/GiantDays"
-          "gfx/HitButton_iso"
-          "gfx/HollowMoon"
-          # TODO: re-enable once upstream draws the missing sprites
-          # (see NOTE at the commented-out matrix entry below).
-          # "gfx/IsoMSX+"
-          "gfx/Larwick_Overmap"
-          "gfx/MShockXotto+"
-          "gfx/MShockXotto+_Portraits"
-          # TODO: re-enable with the matrix entry below once upstream
-          # ships the file (see NOTE there).
-          # "gfx/Mushroom-Dream"
-          "gfx/NeoDays"
-          "gfx/PenAndPaper"
-          "gfx/Retrodays"
-          "gfx/SurveyorsMap"
-          "gfx/Ultica_iso"
-          "gfx/UltimateCataclysm"
-        ];
-      };
-      tilesetsSrc = pkgs.fetchFromGitHub tilesetsPin;
-      tilesetsVersion = builtins.substring 0 7 tilesetsPin.rev;
+      # Content inputs now come from the root flake (see flake.nix), so
+      # `nix flake update` bumps them and no probe-hash updater is
+      # needed. Versions derive from the input's shortRev.
+      tilesetsSrc = inputs.cdda-tilesets;
+      tilesetsVersion = inputs.cdda-tilesets.shortRev or "0000000";
 
-      cuteclysmPin = {
-        owner = "pixel-32";
-        repo = "CDDA-tileset";
-        rev = "3f06254658f48f3c01e5a29994c971f2a6e5fc8a";
-        sha256 = "sha256-ZAZ3uAuav2H7CTI6CLHnnQIFMxNHQJV9HpgUcFhp5bc=";
-      };
-      cuteclysmSrc = pkgs.fetchFromGitHub cuteclysmPin;
-      cuteclysmVersion = builtins.substring 0 7 cuteclysmPin.rev;
+      cuteclysmSrc = inputs.cdda-cuteclysm;
+      cuteclysmVersion = inputs.cdda-cuteclysm.shortRev or "0000000";
 
       # CC-Sounds: the community soundpack release CI bundles into
       # data/sound for sound-enabled builds (release.yml "Get
-      # soundpack"). Full clone with submodules: music/ arrives via
-      # the CDDA-Music-Packs submodule, same as the workflow's
-      # --recurse-submodules. Pin + hash bump with
-      # nix run .#cdda-update-soundpacks (never by hand).
-      soundpacksPin = {
-        owner = "Fris0uman";
-        repo = "CDDA-Soundpacks";
-        rev = "02b65460a808624b500013d4b9aa71dccd968817";
-        sha256 = "sha256-S5aZjQYG2LHnC2lJcVkcNn4p3CA/iAed99w250K/Wp4=";
-        fetchSubmodules = true;
-      };
-      soundpacksSrc = pkgs.fetchFromGitHub soundpacksPin;
-      soundpacksVersion = builtins.substring 0 7 soundpacksPin.rev;
+      # soundpack"). Music/ arrives via the CDDA-Music-Packs submodule,
+      # which the git input fetches with submodules enabled.
+      soundpacksSrc = inputs.cdda-soundpacks;
+      soundpacksVersion = inputs.cdda-soundpacks.shortRev or "0000000";
 
       soundpackPacks = {
         cdda-soundpack-cc-sounds = pkgs.callPackage ./soundpack.nix {
@@ -538,26 +490,6 @@
           touch $out
         '';
 
-        # Unit tests for the tileset updater with mocked git/nix. No
-        # network, no builds. Mock programs get absolute bash shebangs
-        # when created, so nothing needs patching; the scripts run
-        # through bash directly.
-        cdda-updater-tests =
-          pkgs.runCommand "cdda-updater-tests"
-            {
-              nativeBuildInputs = with pkgs; [
-                bash
-                coreutils
-                gawk
-                gnugrep
-                gnused
-              ];
-            }
-            ''
-              bash ${self + /cdda/scripts/test-update-tilesets.sh} ${self + /cdda/scripts/update-tilesets.sh}
-              touch $out
-            '';
-
         # Every soundpack must carry its soundpack.txt manifest (same
         # gate idea as tilesets-validate: catches empty-fetch and
         # wrong-subdir failures before they reach the game).
@@ -573,63 +505,7 @@
             touch $out
           '';
 
-        # Unit tests for the soundpack updater with mocked git/nix.
-        # No network, no builds; same harness as updater-tests.
-        cdda-updater-soundpacks-tests =
-          pkgs.runCommand "cdda-updater-soundpacks-tests"
-            {
-              nativeBuildInputs = with pkgs; [
-                bash
-                coreutils
-                gawk
-                gnugrep
-                gnused
-              ];
-            }
-            ''
-              bash ${self + /cdda/scripts/test-update-soundpacks.sh} ${self + /cdda/scripts/update-soundpacks.sh}
-              touch $out
-            '';
       };
 
-      apps.cdda-update-tilesets =
-        let
-          updater = pkgs.writeShellApplication {
-            name = "cdda-update-tilesets";
-            runtimeInputs = with pkgs; [
-              coreutils
-              gawk
-              git
-              gnugrep
-              gnused
-              nix
-            ];
-            text = builtins.readFile ./scripts/update-tilesets.sh;
-          };
-        in
-        {
-          type = "app";
-          program = lib.getExe updater;
-        };
-
-      apps.cdda-update-soundpacks =
-        let
-          updater = pkgs.writeShellApplication {
-            name = "cdda-update-soundpacks";
-            runtimeInputs = with pkgs; [
-              coreutils
-              gawk
-              git
-              gnugrep
-              gnused
-              nix
-            ];
-            text = builtins.readFile ./scripts/update-soundpacks.sh;
-          };
-        in
-        {
-          type = "app";
-          program = lib.getExe updater;
-        };
     };
 }

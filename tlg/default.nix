@@ -69,21 +69,10 @@
 
       # CTLG-Soundpacks: TLG's fork of the community soundpack repo.
       # Same layout as Fris0uman's (sound/CC-Sounds), music via the
-      # CTLG-Music-Packs submodule. Pin + hash bump with
-      # nix run .#tlg-update-soundpacks (never by hand).
-      #
-      # Pinned as an attrset so the derivation version derives from the
-      # rev: a hand-written short rev goes stale the moment the updater
-      # moves the pin, and the store path then misnames its contents.
-      tlgSoundpacks = {
-        owner = "Cataclysm-TLG";
-        repo = "CTLG-Soundpacks";
-        rev = "779390bba4bc4ab4f79c18897d15cb6aec640209";
-        sha256 = "sha256-LJo45x4jjtGtkhJC4RNfhIAHOOkdhF+8cXTRxbbgudo=";
-        fetchSubmodules = true;
-      };
-      tlgSoundpacksSrc = pkgs.fetchFromGitHub tlgSoundpacks;
-      tlgSoundpacksVersion = builtins.substring 0 7 tlgSoundpacks.rev;
+      # CTLG-Music-Packs submodule, fetched with submodules enabled.
+      # Now a flake input (see flake.nix) so `nix flake update` bumps it.
+      tlgSoundpacksSrc = inputs.tlg-soundpacks;
+      tlgSoundpacksVersion = inputs.tlg-soundpacks.shortRev or "0000000";
 
       tlgSoundpackPacks = {
         tlg-soundpack-cc-sounds = pkgs.callPackage ./soundpack.nix {
@@ -249,23 +238,6 @@
               touch $out
             '';
 
-        # Unit tests for the soundpack updater with mocked git/nix. No
-        # network, no builds; same harness as the CDDA updater suites.
-        tlg-updater-soundpacks-tests =
-          pkgs.runCommand "ctlg-updater-soundpacks-tests"
-            {
-              nativeBuildInputs = with pkgs; [
-                bash
-                coreutils
-                gawk
-                gnugrep
-                gnused
-              ];
-            }
-            ''
-              bash ${self + /tlg/scripts/test-update-soundpacks.sh} ${self + /tlg/scripts/update-soundpacks.sh}
-              touch $out
-            '';
       };
 
       # One shell per game, no default. TLG is SDL2-only and ships its
@@ -292,24 +264,5 @@
         '';
       };
 
-      apps.tlg-update-soundpacks =
-        let
-          updater = pkgs.writeShellApplication {
-            name = "tlg-update-soundpacks";
-            runtimeInputs = with pkgs; [
-              coreutils
-              gawk
-              git
-              gnugrep
-              gnused
-              nix
-            ];
-            text = builtins.readFile ./scripts/update-soundpacks.sh;
-          };
-        in
-        {
-          type = "app";
-          program = lib.getExe updater;
-        };
     };
 }

@@ -57,6 +57,27 @@
       url = "github:cataclysmbn/Cataclysm-BN";
       flake = false;
     };
+
+    # Content inputs: moved out of inline pins so `nix flake update`
+    # bumps them and the probe-hash updaters retire. Tilesets is a full
+    # clone (sparse checkout dropped for simplicity); soundpacks carry
+    # their music submodules.
+    cdda-tilesets = {
+      url = "github:I-am-Erk/CDDA-Tilesets";
+      flake = false;
+    };
+    cdda-cuteclysm = {
+      url = "github:pixel-32/CDDA-tileset";
+      flake = false;
+    };
+    cdda-soundpacks = {
+      url = "git+https://github.com/Fris0uman/CDDA-Soundpacks?submodules=1";
+      flake = false;
+    };
+    tlg-soundpacks = {
+      url = "git+https://github.com/Cataclysm-TLG/CTLG-Soundpacks?submodules=1";
+      flake = false;
+    };
   };
 
   outputs =

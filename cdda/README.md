@@ -95,27 +95,11 @@ ln -s ./result ~/.cataclysm-dda/gfx/Retrodays
 
 ### Updating tileset pins
 
-Revs + hashes live in `./default.nix` (`tilesetsSrc`, `cuteclysmSrc`). Bump
-them with the updater app (pinned-by-default, fresh-on-demand):
-
-```sh
-nix run .#cdda-update-tilesets -- --check   # compare current vs HEAD, no changes
-nix run .#cdda-update-tilesets              # bump stale pins, verifying hashes
-```
-
-The updater reads HEAD with `git ls-remote`, puts the new rev in with
-a throwaway hash, and takes the verified `got:` hash back out of a
-probe build. The probe dies fetching, so updating never compiles
-anything. To put it plainly: evaluation reads expressions, fetching
-downloads sources, compilation turns sources into outputs, and the
-updater stops after fetching. Sources already at HEAD get skipped.
-Then run `nix flake check --no-build`, look over the diff, and commit.
-
-How it stays safe: it resolves every HEAD and works out the whole plan before writing anything. Writes go through a backup (put back on any failure) plus a re-read at the end to confirm. Probe output has to hold exactly one good hash or the run stops and shows you the output. A leftover placeholder hash from a killed run gets repaired, not skipped. `nurl` stays out on purpose: it hashes whole repos and these pins hash sparse subtrees, so its hashes would fail every build.
-
-`./scripts/test-update-tilesets.sh` tests the updater with mocked git/nix (skip, update, sparse preservation, bad diagnostics, fetch failures, interrupted runs, ambiguous output, surprise success) and runs as `checks.cdda-updater-tests` with no network or builds.
-
-Bump when tilesets go stale: new game content without matching sprites falls back to ASCII/unknown glyphs in-game.
+Tilesets are now a flake input (`cdda-tilesets`, `cdda-cuteclysm` in the
+root `flake.nix`), so a plain `nix flake update` moves them forward and
+`nix flake check --no-build` validates the result. No probe-hash updater
+remains for tilesets. Bump when tilesets go stale: new game content
+without matching sprites falls back to ASCII/unknown glyphs in-game.
 
 ## Soundpacks
 
@@ -140,8 +124,7 @@ Both eras bundle CC-Sounds (`Fris0uman/CDDA-Soundpacks`, `sound/CC-Sounds`, musi
 
 ```sh
 nix build .#cdda-soundpack-cc-sounds
-nix run .#cdda-update-soundpacks -- --check   # compare current vs HEAD, no changes
-nix run .#cdda-update-soundpacks              # bump the pin, verifying the hash
+nix flake update                  # moves the CC-Sounds pin (now a flake input)
 nix build .#checks.x86_64-linux.cdda-soundpacks-validate   # every pack has soundpack.txt
 ```
 

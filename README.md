@@ -47,17 +47,18 @@ TLG tracks dated release tags only; they update on their own cadence.
 
 ## Content pins
 
-Game content that does not live in the game repo is pinned per chunk and refreshed by a
-dedicated updater app, each with a mocked test suite running as a flake check:
+Game content that does not live in the game repo is now a flake input wherever it is a
+git repo, so `nix flake update` moves it forward like any other input:
 
-- `nix run .#cdda-update-tilesets` — the 17-set tileset matrix, composed from source with
-  `compose.py`, exactly as the game's own compose workflow does it.
-- `nix run .#cdda-update-soundpacks` / `nix run .#tlg-update-soundpacks` — CC-Sounds.
-- `nix run .#cbn-update-registry-mods` — the mod registry content and the Otopack
-  soundpack, resolving archives to immutable urls.
+- CDDA tilesets (`I-am-Erk/CDDA-Tilesets`) and the Cuteclysm set (`pixel-32/CDDA-tileset`),
+  composed from source with `compose.py`, exactly as the game's own compose workflow does it.
+- CC-Sounds for CDDA (`Fris0uman/CDDA-Soundpacks`) and TLG (`Cataclysm-TLG/CTLG-Soundpacks`),
+  music via submodules.
 
-All three are plan-first, backup, verify-after-write updaters; pass `--check` to preview
-without touching anything.
+The one exception is BN's registry mods: their archives are resolved per-version against
+the live mod registry, so they stay fetchurl pins refreshed by
+`nix run .#cbn-update-registry-mods` (pass `--check` to preview). The nightly workflow
+runs that updater alongside `nix flake update`.
 
 See `cdda/README.md`, `tlg/README.md` and `cbn/README.md` for the full tours: packages,
 checks, dev shells, pins.
