@@ -4,6 +4,7 @@
 {
   inputs,
   self,
+  lockHelpers,
   ...
 }:
 {
@@ -96,7 +97,7 @@
       stable = mkEra {
         src = gameSource inputs.cataclysm-dda;
         shortRev = inputs.cataclysm-dda.shortRev;
-        versionPrefix = "0.I-1";
+        versionPrefix = lockHelpers.refOf "cataclysm-dda";
         useSdl3 = false;
         bundleTilesets = false;
       };

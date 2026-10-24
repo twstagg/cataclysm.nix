@@ -20,6 +20,7 @@
   lib,
   inputs,
   self,
+  lockHelpers,
   ...
 }:
 {
@@ -53,22 +54,12 @@
             !(base == "docs" || base == ".git" || base == ".github");
         };
 
-      # Banner prefix from the ref we asked for, read out of the lock so
-      # nothing is hardcoded here: a tag pin yields its tag (minus the
-      # leading v), a branch pin falls back to a label. Bumping the tag
-      # in flake.nix is the only edit a new release needs.
-      #
-      # root.inputs maps an input name to its node name; the ref we
-      # asked for lives on that node's original.
-      lock = builtins.fromJSON (builtins.readFile ../flake.lock);
-      nodeOf = name: lock.nodes.${lock.nodes.root.inputs.${name}};
-      refOf = name: (nodeOf name).original.ref or null;
-      bannerPrefix =
-        name: fallback:
-        let
-          r = refOf name;
-        in
-        if r == null then fallback else lib.removePrefix "v" r;
+      # Banner prefix from the ref we asked for, read out of the root
+      # flake.lock so nothing is hardcoded here: a tag pin yields its tag
+      # (minus a leading v), a branch pin falls back to a label. Bumping
+      # the tag in flake.nix is the only edit a new release needs. The
+      # helper now lives in the root flake and is shared by all chunks.
+      bannerPrefix = lockHelpers.bannerPrefix;
 
       # Registry bundle: external mods + the Otopack soundpack, from the
       # lockfile in the pinned game source and the vendored snapshot in

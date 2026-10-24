@@ -60,8 +60,24 @@
   };
 
   outputs =
-    inputs@{ flake-parts, ... }:
-    flake-parts.lib.mkFlake { inherit inputs; } {
+    inputs@{ flake-parts, nixpkgs, ... }:
+    let
+      lib = nixpkgs.lib;
+
+      # Shared lock helpers: read a fork's requested ref out of
+      # flake.lock so no chunk hardcodes a version banner. Passed to
+      # every chunk via specialArgs. A tag pin yields its tag (minus a
+      # leading 'v'); a branch pin yields null and the chunk keeps a
+      # label.
+      lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+      nodeOf = name: lock.nodes.${lock.nodes.root.inputs.${name}};
+      refOf = name: (nodeOf name).original.ref or null;
+      bannerPrefix = name: fallback:
+        let r = refOf name;
+        in if r == null then fallback else lib.removePrefix "v" r;
+      lockHelpers = { inherit lock nodeOf refOf bannerPrefix; };
+    in
+    flake-parts.lib.mkFlake { inherit inputs; specialArgs = { inherit lockHelpers; }; } {
       # One directory per game fork. Each default.nix contributes its
       # packages (no name collisions by convention), checks, dev
       # shells, and updater apps.

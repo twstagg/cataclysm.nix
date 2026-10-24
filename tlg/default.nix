@@ -11,6 +11,7 @@
   lib,
   inputs,
   self,
+  lockHelpers,
   ...
 }:
 {
@@ -42,8 +43,16 @@
       # bump by editing the ref there.
       tlgSrc = gameSource inputs.cataclysm-tlg;
       # VERSION for the binary banner; the Makefile default is a bare
-      # 1.0 and fetched sources have no .git.
-      version = "1.0+" + (inputs.cataclysm-tlg.shortRev or "git");
+      # 1.0 and fetched sources have no .git. The prefix is parsed out
+      # of the tag ref in flake.lock (cataclysm-tlg-<prefix>-<date>),
+      # not hardcoded, so a tag bump moves it automatically.
+      tlgTag = lockHelpers.refOf "cataclysm-tlg";
+      tlgPrefix =
+        let
+          m = builtins.match "cataclysm-tlg-(.+)-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}" (if tlgTag == null then "" else tlgTag);
+        in
+        if m == null then "1.0" else builtins.head m;
+      version = "${tlgPrefix}+" + (inputs.cataclysm-tlg.shortRev or "git");
 
       mkTlg =
         attrs:
