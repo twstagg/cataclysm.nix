@@ -1,5 +1,5 @@
 # Cataclysm: Bright Nights chunk of the flake: BN packaging as a
-# self-contained directory. Sibling of ../cdda and ../tlg; the root
+# self-contained directory. Sibling of ../cdda and ../ctlg; the root
 # flake.nix only declares inputs and systems. See ./README.md for the
 # tour.
 #
@@ -125,7 +125,7 @@
     {
       packages = {
         # bn-prefixed so all three chunks coexist in one namespace (see
-        # cdda/* and tlg/*), and no default: always name what you want.
+        # cdda/* and ctlg/*), and no default: always name what you want.
         #
         # Unprefixed = the v0.13.0 tag track; -master- = development.
         cbn-tiles = stable.tiles;

@@ -25,7 +25,7 @@
     #                                   update moves it like any other
     #                                   input
     #
-    #   tlg/   Cataclysm-TLG/Cataclysm-TLG, an independent fork with
+    #   ctlg/   Cataclysm-TLG/Cataclysm-TLG, an independent fork with
     #          its own release cadence, pinned to a dated tag for the
     #          same reason.
     #
@@ -74,7 +74,7 @@
       url = "git+https://github.com/Fris0uman/CDDA-Soundpacks?submodules=1";
       flake = false;
     };
-    tlg-soundpacks = {
+    ctlg-soundpacks = {
       url = "git+https://github.com/Cataclysm-TLG/CTLG-Soundpacks?submodules=1";
       flake = false;
     };
@@ -113,7 +113,7 @@
       # shells, and updater apps.
       imports = [
         ./cdda
-        ./tlg
+        ./ctlg
         ./cbn
       ];
 

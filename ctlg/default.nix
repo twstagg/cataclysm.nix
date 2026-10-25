@@ -41,18 +41,18 @@
       # The game itself. Pinned to a dated release tag in the root flake
       # inputs (tags are immutable, so nix flake update keeps it steady);
       # bump by editing the ref there.
-      tlgSrc = gameSource inputs.cataclysm-tlg;
+      ctlgSrc = gameSource inputs.cataclysm-tlg;
       # VERSION for the binary banner; the Makefile default is a bare
       # 1.0 and fetched sources have no .git. The prefix is parsed out
       # of the tag ref in flake.lock (cataclysm-tlg-<prefix>-<date>),
       # not hardcoded, so a tag bump moves it automatically.
-      tlgTag = lockHelpers.refOf "cataclysm-tlg";
-      tlgPrefix =
+      ctlgTag = lockHelpers.refOf "cataclysm-tlg";
+      ctlgPrefix =
         let
-          m = builtins.match "cataclysm-tlg-(.+)-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}" (if tlgTag == null then "" else tlgTag);
+          m = builtins.match "cataclysm-tlg-(.+)-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}" (if ctlgTag == null then "" else ctlgTag);
         in
         if m == null then "1.0" else builtins.head m;
-      version = "${tlgPrefix}+" + (inputs.cataclysm-tlg.shortRev or "git");
+      version = "${ctlgPrefix}+" + (inputs.cataclysm-tlg.shortRev or "git");
 
       mkTlg =
         attrs:
@@ -60,7 +60,7 @@
           attrs
           // {
             inherit version;
-            src = tlgSrc;
+            src = ctlgSrc;
             # Full sha for VERSION.txt's commit fields (the banner itself
             # only reads `version`); tags are immutable so this is stable.
             gitRev = inputs.cataclysm-tlg.rev or "";
@@ -71,16 +71,16 @@
       # Same layout as Fris0uman's (sound/CC-Sounds), music via the
       # CTLG-Music-Packs submodule, fetched with submodules enabled.
       # Now a flake input (see flake.nix) so `nix flake update` bumps it.
-      tlgSoundpacksSrc = inputs.tlg-soundpacks;
-      tlgSoundpacksVersion = inputs.tlg-soundpacks.shortRev or "0000000";
+      ctlgSoundpacksSrc = inputs.ctlg-soundpacks;
+      ctlgSoundpacksVersion = inputs.ctlg-soundpacks.shortRev or "0000000";
 
-      tlgSoundpackPacks = {
-        tlg-soundpack-cc-sounds = pkgs.callPackage ./soundpack.nix {
+      ctlgSoundpackPacks = {
+        ctlg-soundpack-cc-sounds = pkgs.callPackage ./soundpack.nix {
           name = "CC-Sounds";
-          src = tlgSoundpacksSrc;
+          src = ctlgSoundpacksSrc;
           sourceDir = "sound/CC-Sounds";
           installName = "CC-Sounds";
-          version = tlgSoundpacksVersion;
+          version = ctlgSoundpacksVersion;
         };
       };
 
@@ -88,18 +88,18 @@
       # tilesets need no bundling: make install already ships them
       # in-tree, pre-composed. Bound here (not inline in packages) so the
       # version-banner check can reference it.
-      tlgTiles = mkTlg {
+      ctlgTiles = mkTlg {
         tiles = true;
         sound = true;
-        extraSoundpacks = [ tlgSoundpackPacks.tlg-soundpack-cc-sounds ];
+        extraSoundpacks = [ ctlgSoundpackPacks.ctlg-soundpack-cc-sounds ];
       };
 
       # json_formatter.cgi: TLG's canonical JSON formatter, built with
       # the same Makefile target the JSON workflow uses.
-      tlgJsonFormatter = pkgs.stdenv.mkDerivation {
+      ctlgJsonFormatter = pkgs.stdenv.mkDerivation {
         pname = "ctlg-json-formatter";
         inherit version;
-        src = tlgSrc;
+        src = ctlgSrc;
         # The Makefile's global LDFLAGS drag -lncursesw -lz into this
         # link (non-TILES default), same as CDDA's json_formatter.
         buildInputs = with pkgs; [
@@ -133,10 +133,10 @@
       # src/string_id.cpp while string_id.h arrives via json.cpp, so
       # string_id symbols are undefined (same omission in CleverRaven
       # 0.I). Add the missing TU with a command-line override.
-      tlgChkjson = pkgs.stdenv.mkDerivation {
+      ctlgChkjson = pkgs.stdenv.mkDerivation {
         pname = "ctlg-chkjson";
         inherit version;
-        src = tlgSrc;
+        src = ctlgSrc;
         # Same global-LDFLAGS reason as the formatter above.
         buildInputs = with pkgs; [
           ncurses
@@ -170,22 +170,22 @@
         # Sound build carries CTLG's CC-Sounds (release parity). The
         # twelve tilesets need no bundling: make install already
         # ships them in-tree, pre-composed.
-        tlg-tiles = tlgTiles;
-        tlg-curses = mkTlg {
+        ctlg-tiles = ctlgTiles;
+        ctlg-curses = mkTlg {
           tiles = false;
           sound = false;
         };
-        tlg-json-formatter = tlgJsonFormatter;
-        tlg-chkjson = tlgChkjson;
+        ctlg-json-formatter = ctlgJsonFormatter;
+        ctlg-chkjson = ctlgChkjson;
       }
-      // tlgSoundpackPacks;
+      // ctlgSoundpackPacks;
 
       checks = {
         # Every TLG soundpack must carry its soundpack.txt manifest
         # (same gate as the CDDA soundpacks-validate check).
-        tlg-soundpacks-validate =
+        ctlg-soundpacks-validate =
           let
-            allPacks = builtins.attrValues tlgSoundpackPacks;
+            allPacks = builtins.attrValues ctlgSoundpackPacks;
           in
           pkgs.runCommand "ctlg-soundpacks-validate" { } ''
             ${lib.concatMapStrings (s: ''
@@ -204,9 +204,9 @@
         # json.yml runs the formatter over data/, but "json-fixes" PRs
         # land non-canonical JSON in release tags, and formatting is
         # cosmetic anyway. chkjson is the load-bearing check.
-        tlg-json-check = pkgs.runCommand "ctlg-json-check" { } ''
-          cd ${tlgSrc}
-          ${tlgChkjson}/bin/chkjson
+        ctlg-json-check = pkgs.runCommand "ctlg-json-check" { } ''
+          cd ${ctlgSrc}
+          ${ctlgChkjson}/bin/chkjson
           touch $out
         '';
 
@@ -214,7 +214,7 @@
 
       # One shell per game, no default. TLG is SDL2-only and ships its
       # tilesets pre-composed, so no compose toolchain here.
-      devShells.tlg = pkgs.mkShell {
+      devShells.ctlg = pkgs.mkShell {
         packages = with pkgs; [
           SDL2
           SDL2_image
@@ -232,7 +232,7 @@
         ];
 
         shellHook = ''
-          echo 'cataclysm.nix TLG shell. Try: nix build .#tlg-tiles' 1>&2
+          echo 'cataclysm.nix TLG shell. Try: nix build .#ctlg-tiles' 1>&2
         '';
       };
 

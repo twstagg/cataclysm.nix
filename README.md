@@ -8,12 +8,12 @@ for BN, which dropped the Makefile — rather than reimplementing any of it.
 nix run .#cdda-tiles          # CDDA, SDL + sound
 nix run .#cdda-tiles-full     # ... with every composed tileset baked in
 nix build .#cdda-tileset-retrodays
-nix run .#tlg-tiles           # TLG, SDL2 + sound, art in-tree
+nix run .#ctlg-tiles           # TLG, SDL2 + sound, art in-tree
 nix run .#cbn-tiles           # BN, SDL3 + sound, registry mods included
 ```
 
 Every game is a flake input, so `nix flake update` moves it forward like any other
-input. There is no default package: outputs are prefixed per game (`cdda-*`, `tlg-*`,
+input. There is no default package: outputs are prefixed per game (`cdda-*`, `ctlg-*`,
 `cbn-*`) so the forks coexist in one namespace.
 
 ## The chunks
@@ -21,7 +21,7 @@ input. There is no default package: outputs are prefixed per game (`cdda-*`, `tl
 | directory | game | why it lives here |
 | --- | --- | --- |
 | `cdda/` | Cataclysm: Dark Days Ahead | upstream doesn't take Nix packaging in-tree, and won't accept contributions from people who use LLMs at all (see CleverRaven/Cataclysm-DDA#87320 and #89051) |
-| `tlg/` | Cataclysm: The Last Generation | a CDDA content fork with the same no-LLM policy |
+| `ctlg/` | Cataclysm: The Last Generation | a CDDA content fork with the same no-LLM policy |
 | `cbn/` | Cataclysm: Bright Nights | a CDDA-family fork that does take AI-assisted contributions, but upstreaming a Nix flake means keeping it alive against a fast-moving CMake and release process; here it just tracks upstream and models builds on what upstream's own pipeline produces |
 
 Each directory is a self-contained flake-parts chunk owning its derivations, pin tooling,
@@ -45,7 +45,7 @@ already gates every push to `main`.
 ## Dev shells
 
 One shell per game, no default, each carrying that game's build deps:
-`nix develop .#cdda`, `.#tlg`, `.#cbn`.
+`nix develop .#cdda`, `.#ctlg`, `.#cbn`.
 
 ## Tracks
 
@@ -75,5 +75,5 @@ the live mod registry, so they stay fetchurl pins refreshed by
 `nix run .#cbn-update-registry-mods` (pass `--check` to preview). The nightly workflow
 runs that updater alongside `nix flake update`.
 
-See `cdda/README.md`, `tlg/README.md` and `cbn/README.md` for the full tours: packages,
+See `cdda/README.md`, `ctlg/README.md` and `cbn/README.md` for the full tours: packages,
 checks, dev shells, pins.

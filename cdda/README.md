@@ -133,4 +133,4 @@ nix build .#checks.x86_64-linux.cdda-soundpacks-validate   # every pack has soun
 
 A stale soundpack is benign, unlike stale art: unknown sound ids never trigger, so new content just stays silent until the pin catches up. And players can always drop packs into the user sound dir (`~/.cataclysm-dda/sound/`), which the game scans before the shipped `data/sound/`. The flake bundling is release parity and convenience, not a requirement.
 
-The TLG chunk under `../tlg` packages the CDDA fork "The Last Generation" with its own soundpack repo; see `../tlg/README.md`.
+The TLG chunk under `../ctlg` packages the CDDA fork "The Last Generation" with its own soundpack repo; see `../ctlg/README.md`.

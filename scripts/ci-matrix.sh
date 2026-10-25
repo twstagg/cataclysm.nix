@@ -41,8 +41,8 @@ GAME_ATTRS=(
   cbn-master-tiles
   cbn-master-curses
   cbn-master-cata-test
-  tlg-tiles
-  tlg-curses
+  ctlg-tiles
+  ctlg-curses
 )
 
 # Naming-convention patterns for the grouped buckets. New tilesets and

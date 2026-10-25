@@ -22,7 +22,7 @@
 }:
 
 stdenv.mkDerivation {
-  pname = "tlg-soundpack-${lib.toLower (builtins.replaceStrings [ "+" "_" ] [ "-plus" "-" ] name)}";
+  pname = "ctlg-soundpack-${lib.toLower (builtins.replaceStrings [ "+" "_" ] [ "-plus" "-" ] name)}";
   inherit version src;
 
   dontConfigure = true;

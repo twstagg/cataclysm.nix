@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Detect newer release tags for the tagged flake inputs (CDDA stable,
-# TLG dated tag) and bump the ref in flake.nix when one is found.
+# CTLG dated tag) and bump the ref in flake.nix when one is found.
 # Prints what changed; exits 0 either way.
 set -uo pipefail
 
@@ -19,15 +19,15 @@ if [ -n "$latest_cdda" ] && [ "$latest_cdda" != "$current_cdda" ]; then
   fi
 fi
 
-# --- TLG dated tag (e.g. cataclysm-tlg-1.0-2026-10-16-0752) ---
-current_tlg=$(grep -o 'github:Cataclysm-TLG/Cataclysm-TLG/[^"]*' flake.nix | head -1 | sed 's#.*/##')
-echo "TLG current tag: $current_tlg"
-latest_tlg=$(git ls-remote --tags https://github.com/Cataclysm-TLG/Cataclysm-TLG 2>/dev/null \
+# --- CTLG dated tag (e.g. cataclysm-tlg-1.0-2026-10-16-0752) ---
+current_ctlg=$(grep -o 'github:Cataclysm-TLG/Cataclysm-TLG/[^"]*' flake.nix | head -1 | sed 's#.*/##')
+echo "CTLG current tag: $current_ctlg"
+latest_ctlg=$(git ls-remote --tags https://github.com/Cataclysm-TLG/Cataclysm-TLG 2>/dev/null \
   | awk '{print $2}' | sed 's#refs/tags/##' | grep -E '^cataclysm-tlg-' | sort | tail -1)
-echo "TLG latest tag:  $latest_tlg"
-if [ -n "$latest_tlg" ] && [ "$latest_tlg" != "$current_tlg" ]; then
-  if [ "$latest_tlg" \> "$current_tlg" ]; then
-    echo "Bumping TLG tag: $current_tlg -> $latest_tlg"
-    sed -i "s#github:Cataclysm-TLG/Cataclysm-TLG/$current_tlg#github:Cataclysm-TLG/Cataclysm-TLG/$latest_tlg#" flake.nix
+echo "CTLG latest tag:  $latest_ctlg"
+if [ -n "$latest_ctlg" ] && [ "$latest_ctlg" != "$current_ctlg" ]; then
+  if [ "$latest_ctlg" \> "$current_ctlg" ]; then
+    echo "Bumping CTLG tag: $current_ctlg -> $latest_ctlg"
+    sed -i "s#github:Cataclysm-TLG/Cataclysm-TLG/$current_ctlg#github:Cataclysm-TLG/Cataclysm-TLG/$latest_ctlg#" flake.nix
   fi
 fi

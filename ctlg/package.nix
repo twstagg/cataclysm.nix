@@ -170,7 +170,7 @@ stdenv.mkDerivation (finalAttrs: {
       # collide on bin/zzip in a home-manager buildEnv, so rename it
       # per game.
       if [ -f "$out/bin/zzip" ]; then
-        mv "$out/bin/zzip" "$out/bin/zzip-tlg"
+        mv "$out/bin/zzip" "$out/bin/zzip-ctlg"
       fi
     ''
     + optionalString tiles ''

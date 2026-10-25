@@ -1,5 +1,5 @@
 # CDDA chunk of the flake: Cataclysm: Dark Days Ahead packaging as a
-# self-contained directory. Sibling of ../tlg; the root flake.nix only
+# self-contained directory. Sibling of ../ctlg; the root flake.nix only
 # declares inputs and systems. See ./README.md for the tour.
 {
   inputs,
@@ -375,7 +375,7 @@
     {
       packages = {
         # Every attr is cdda-prefixed so both forks' outputs coexist in
-        # one namespace (tlg/* mirrors this), and there is no default:
+        # one namespace (ctlg/* mirrors this), and there is no default:
         # always name what you want, e.g. `nix build .#cdda-tiles`.
         #
         # Unprefixed = the stable 0.I tag track; -master- = the 0.J dev

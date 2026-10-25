@@ -133,6 +133,24 @@
         "type": "github"
       }
     },
+    "ctlg-soundpacks": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1741914970,
+        "narHash": "sha256-LJo45x4jjtGtkhJC4RNfhIAHOOkdhF+8cXTRxbbgudo=",
+        "ref": "refs/heads/main",
+        "rev": "779390bba4bc4ab4f79c18897d15cb6aec640209",
+        "revCount": 80,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
+      }
+    },
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": "nixpkgs-lib"
@@ -192,27 +210,9 @@
         "cdda-cuteclysm": "cdda-cuteclysm",
         "cdda-soundpacks": "cdda-soundpacks",
         "cdda-tilesets": "cdda-tilesets",
+        "ctlg-soundpacks": "ctlg-soundpacks",
         "flake-parts": "flake-parts",
-        "nixpkgs": "nixpkgs",
-        "tlg-soundpacks": "tlg-soundpacks"
-      }
-    },
-    "tlg-soundpacks": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1741914970,
-        "narHash": "sha256-LJo45x4jjtGtkhJC4RNfhIAHOOkdhF+8cXTRxbbgudo=",
-        "ref": "refs/heads/main",
-        "rev": "779390bba4bc4ab4f79c18897d15cb6aec640209",
-        "revCount": 80,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
-      },
-      "original": {
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/Cataclysm-TLG/CTLG-Soundpacks"
+        "nixpkgs": "nixpkgs"
       }
     }
   },
