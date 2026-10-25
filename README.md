@@ -32,7 +32,15 @@ checks, dev shell and docs: `flake.nix` stays a thin root (inputs, systems, impo
 A public Cachix cache (`cataclysm-nix`) is configured in `flake.nix` via
 `nixConfig`, so Nix pulls prebuilt packages/checks automatically (with
 `--accept-flake-config` or an approval prompt). CI publishes to it on merges
-to `main` (see `.github/workflows/nix-cache.yml`).
+to `main` (see `.github/workflows/nix-cache.yml`): a plan job classifies
+every package output with `scripts/ci-matrix.sh` — one runner per game
+build, one for the tileset packs, one for the remaining content — and each
+publish job pulls substitutes and pushes its own closures, so a pin bump
+rebuilds only the buckets that consume it. An output the planner cannot
+classify fails the plan rather than silently skipping the cache. Per-job
+ceilings are 180 minutes, enough for a cold full game compile with
+headroom. Flake checks are deliberately not re-run there; `nix.yml`
+already gates every push to `main`.
 
 ## Dev shells
 

@@ -121,6 +121,8 @@ nix flake update                 # moves the master track only
 
 Checks (calendar smoke, tileset discovery, validation) run against the stable track; `cdda-master-cata-test` is exposed for anyone who wants the test binary on the dev track.
 
+The master merge happens inside the tiles build itself, not as a copy of a finished one: the binary bakes its data dir at compile time (`-DPREFIX`), so art added to a completed build's tree would never be scanned. `cdda-tiles-full` is therefore an alias of `cdda-tiles` on both tracks — the bundle attr costs zero extra builds.
+
 Both eras bundle CC-Sounds (`Fris0uman/CDDA-Soundpacks`, `sound/CC-Sounds`, music via submodule) into every sound-enabled package, mirroring `release.yml`'s "Get soundpack" step. Unlike tilesets there is no compose step: `./soundpack.nix` just isolates the pack subtree into `$out`, and `extraSoundpacks` in `./package.nix` merges it into `share/cataclysm-dda/sound/` next to the in-tree pack, using the same merge idiom as `extraTilesets`.
 
 ```sh
