@@ -12,14 +12,60 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish:
+  # Classify every package.x86_64-linux attr into publish buckets via
+  # scripts/ci-matrix.sh (runs locally too: it is the same code path).
+  # An attr the planner cannot classify fails the plan, so a new
+  # output can never silently skip publishing.
+  plan:
     if: >-
       github.repository == 'twstagg/cataclysm.nix' &&
       (github.event_name == 'push' || github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    # Eval-only job; the number is flake-parse headroom, not build time.
+    timeout-minutes: 10
     permissions:
       contents: read
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Plan publish matrix
+        id: plan
+        run: |
+          matrix=$(./scripts/ci-matrix.sh .)
+          echo "$matrix" | jq -c .
+          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+
+  # One runner per bucket. Each pulls substitutes (warm nightlies cost
+  # minutes) and pushes its own closures, so a bumped input only
+  # rebuilds the buckets that consume it. No inter-job needs: on a cold
+  # cache a shared dep may build twice once; after that the cache
+  # serves it. nix flake check deliberately does not run here -
+  # nix.yml already gates every push to main.
+  publish:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJson(needs.plan.outputs.matrix) }}
+    name: Publish ${{ matrix.group }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # Literal on purpose: GitHub forbids the env context at job-level
+    # timeout-minutes. 180 covers a cold full-game compile on a 4-core
+    # runner with headroom; warm runs substitute and finish in minutes.
+    timeout-minutes: 180
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,16 +87,11 @@ jobs:
             exit 1
           fi
 
-      - name: Publish to Cachix
+      - name: Pull and push Cachix
         uses: cachix/cachix-action@v17
         with:
           name: cataclysm-nix
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      - name: Build and publish all packages
-        run: |
-          packages=$(nix eval .#packages.x86_64-linux --apply 'p: builtins.attrNames p' --json)
-          nix build $(echo "$packages" | jq -r '.[] | ".#" + .')
-
-      - name: Build and publish the check environments
-        run: nix flake check
+      - name: Build and publish ${{ matrix.group }}
+        run: nix build ${{ matrix.packages }}
