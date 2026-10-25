@@ -2,9 +2,15 @@ name: Nix Flake Check
 on:
   pull_request: null
   workflow_dispatch: null
-  push:
-    branches:
-      - main
+  # Post-publish pass: the Nix Cache matrix has just pushed the full
+  # closure, so this run substitutes instead of rebuilding - minutes,
+  # not hours. The push:main trigger is gone on purpose; checking main
+  # cold (every nightly bumps nixpkgs and pins) was the same
+  # serial-compile wall that killed the old single-job publisher.
+  workflow_run:
+    workflows: ["Nix Cache"]
+    types:
+      - completed
 
 permissions: {}
 
@@ -15,14 +21,25 @@ concurrency:
 jobs:
   flake-check:
     name: Nix Flake Check
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'main')
     permissions:
       contents: read
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # A cold PR build of check closures (game compile + 17 tileset
+    # composes on 4 cores) needs the headroom; the post-publish pass
+    # substitutes and finishes in minutes.
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+          # workflow_run: check the commit that triggered the publish,
+          # not the default-branch head. Empty on PR/dispatch, where
+          # checkout falls back to its default ref.
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Install Nix
         uses: cachix/install-nix-action@v31
@@ -31,8 +48,9 @@ jobs:
             experimental-features = nix-command flakes
             accept-flake-config = true
 
-      # Read-only pull: no authToken, so this job can never publish. The
-      # cache is populated by nix-cache.yml on merges to main.
+      # Read-only pull: no authToken, so this job can never publish.
+      # The cache is populated by nix-cache.yml; the workflow_run pass
+      # reads back exactly what that run pushed.
       - name: Pull from Cachix
         uses: cachix/cachix-action@v17
         with:
