@@ -65,12 +65,29 @@
           # Sound builds carry CC-Sounds, mirroring release.yml (which
           # drops it into data/sound for every sound-enabled build).
           # Overridable per package; curses and cata-test stay lean.
-          tiles = mk {
-            tiles = true;
-            sound = true;
-            extraSoundpacks = [ soundpackPacks.cdda-soundpack-cc-sounds ];
-            buildTests = true;
-          };
+          #
+          # The composed sets are merged into this same build rather
+          # than into a second derivation over its output: the binary
+          # bakes PREFIX at compile time (-DPREFIX -DDATA_DIR_PREFIX;
+          # main.cpp init_base_path takes PREFIX unconditionally and
+          # path_info.cpp resolves gfxdir under it), so art copied into
+          # a finished build's tree would never be scanned. Audited
+          # 2026-10-24 against the 0.J source. The merge itself is
+          # install-time only in ./package.nix; a tileset input bump
+          # rebuilds the game, which it already did through
+          # tiles.override (the added input changed the drv hash
+          # regardless of when the copy ran).
+          tiles = mk (
+            {
+              tiles = true;
+              sound = true;
+              extraSoundpacks = [ soundpackPacks.cdda-soundpack-cc-sounds ];
+              buildTests = true;
+            }
+            // lib.optionalAttrs bundleTilesets {
+              extraTilesets = builtins.attrValues tilesets;
+            }
+          );
         in
         {
           inherit src version;
@@ -87,11 +104,12 @@
           # lists non-empty so game-state init works inside tests.
           cata-test = tiles.test;
           # Release-bundle equivalent: the game with every composed set
-          # baked into share/cataclysm-dda/gfx. Empty list on stable by
-          # design.
-          tiles-full = tiles.override {
-            extraTilesets = lib.optionals bundleTilesets (builtins.attrValues tilesets);
-          };
+          # baked into share/cataclysm-dda/gfx. On master the bake
+          # already happened in `tiles` above; on stable there is
+          # nothing to bake (17 sets ship in-tree and merging composed
+          # ones would duplicate tileset NAMEs). Either way tiles-full
+          # IS tiles - same store path, so the attr is free.
+          tiles-full = tiles;
         };
 
       stable = mkEra {
