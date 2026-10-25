@@ -18,7 +18,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Pushing with GITHUB_TOKEN would silently skip the downstream
+          # nix-cache.yml run (GitHub's anti-recursion rule); a PAT push
+          # is a real user event and triggers the publish chain.
+          token: ${{ secrets.NIGHTLY_PUSH_TOKEN }}
           persist-credentials: true
 
       - name: Install Nix
