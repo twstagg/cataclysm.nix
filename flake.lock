@@ -20,11 +20,11 @@
     "cataclysm-bn-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1793013422,
-        "narHash": "sha256-v+F3ziyaWHko1OOG/GbtFBBW239GfnnwMny0t/U5pKg=",
+        "lastModified": 1793087637,
+        "narHash": "sha256-PmC8CTpRPcn5pRNNpJyVF8DTav8KbPH34U45MtFNDiQ=",
         "owner": "cataclysmbn",
         "repo": "Cataclysm-BN",
-        "rev": "5aac42c3a794f2690f26b7b0d9fd49d795f9da07",
+        "rev": "2685461cc81baece3b4790a5eb1ff66e1bbdadda",
         "type": "github"
       },
       "original": {
@@ -53,11 +53,11 @@
     "cataclysm-dda-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1792975046,
-        "narHash": "sha256-v4tQe/sjBWbDIMAdmvRvlCj/lrax4rNdwTwpVluzrtw=",
+        "lastModified": 1793097275,
+        "narHash": "sha256-5Ur7RXUQcPCVaLQD0j2xFYJDLJwVflNQHvsyZIDDhZ4=",
         "owner": "CleverRaven",
         "repo": "Cataclysm-DDA",
-        "rev": "eb86dffd20072d6fde54af568cf229f3cd4d751f",
+        "rev": "168a03d67aa59716b8e07c4de86eb66051c492c1",
         "type": "github"
       },
       "original": {
@@ -69,16 +69,16 @@
     "cataclysm-tlg": {
       "flake": false,
       "locked": {
-        "lastModified": 1792941797,
-        "narHash": "sha256-JDmmID7YsxySG+0XqEvBiQUFgsAQCqANNz/oCoaB9qY=",
+        "lastModified": 1793088945,
+        "narHash": "sha256-G0HDdIdhtr7XvQkmLhW8s9jpczFICGvYnlQY247/2S0=",
         "owner": "Cataclysm-TLG",
         "repo": "Cataclysm-TLG",
-        "rev": "ac952183719199ac729bfd9ba12fb28cfe083c8a",
+        "rev": "11886667221f234c3abf3f7a9204e0d69cd9754c",
         "type": "github"
       },
       "original": {
         "owner": "Cataclysm-TLG",
-        "ref": "cataclysm-tlg-1.0-2026-10-25-1523",
+        "ref": "cataclysm-tlg-1.0-2026-10-27-0816",
         "repo": "Cataclysm-TLG",
         "type": "github"
       }
@@ -120,11 +120,11 @@
     "cdda-tilesets": {
       "flake": false,
       "locked": {
-        "lastModified": 1792481302,
-        "narHash": "sha256-/9UE8gRw92Q+5d5I8A6ei9wbPzWu9JDrkJReE5wMTBI=",
+        "lastModified": 1793096752,
+        "narHash": "sha256-DR2fdsl9VEx7vabCxW/TuWNBp+GKNmtrzBFAI1sXPpE=",
         "owner": "I-am-Erk",
         "repo": "CDDA-Tilesets",
-        "rev": "8518bbe4302c15928d3542aa817075079e7d6417",
+        "rev": "a742848359cce2a1efabb5fa4bbe63a9fd674fae",
         "type": "github"
       },
       "original": {
