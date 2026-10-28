@@ -20,11 +20,11 @@
     "cataclysm-bn-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1793087637,
-        "narHash": "sha256-PmC8CTpRPcn5pRNNpJyVF8DTav8KbPH34U45MtFNDiQ=",
+        "lastModified": 1793161574,
+        "narHash": "sha256-+nH007ev97mB1BItAOF4U/aCdI8UpKUIueADtwZU2Hk=",
         "owner": "cataclysmbn",
         "repo": "Cataclysm-BN",
-        "rev": "2685461cc81baece3b4790a5eb1ff66e1bbdadda",
+        "rev": "dcd43b2ada7537efc8ef3992cf4030072a6ca866",
         "type": "github"
       },
       "original": {
@@ -53,11 +53,11 @@
     "cataclysm-dda-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1793097275,
-        "narHash": "sha256-5Ur7RXUQcPCVaLQD0j2xFYJDLJwVflNQHvsyZIDDhZ4=",
+        "lastModified": 1793189308,
+        "narHash": "sha256-2ym8qbyfw9HpK+HVuGlUKTlJS6RXZ6D/ip20vyCG/V4=",
         "owner": "CleverRaven",
         "repo": "Cataclysm-DDA",
-        "rev": "168a03d67aa59716b8e07c4de86eb66051c492c1",
+        "rev": "26cdab1af3fa73c9bec345b7d264c49185abb3b9",
         "type": "github"
       },
       "original": {
@@ -69,16 +69,16 @@
     "cataclysm-tlg": {
       "flake": false,
       "locked": {
-        "lastModified": 1793088945,
-        "narHash": "sha256-G0HDdIdhtr7XvQkmLhW8s9jpczFICGvYnlQY247/2S0=",
+        "lastModified": 1793175742,
+        "narHash": "sha256-eCsUPsqv77xD/5+wERSxjb3Ch3iEYjx3z2PEojuU+Xw=",
         "owner": "Cataclysm-TLG",
         "repo": "Cataclysm-TLG",
-        "rev": "11886667221f234c3abf3f7a9204e0d69cd9754c",
+        "rev": "ba23bbd7b0bf0948d3cc333ba40faa56af424e2a",
         "type": "github"
       },
       "original": {
         "owner": "Cataclysm-TLG",
-        "ref": "cataclysm-tlg-1.0-2026-10-27-0816",
+        "ref": "cataclysm-tlg-1.0-2026-10-28-0822",
         "repo": "Cataclysm-TLG",
         "type": "github"
       }
@@ -120,11 +120,11 @@
     "cdda-tilesets": {
       "flake": false,
       "locked": {
-        "lastModified": 1793096752,
-        "narHash": "sha256-DR2fdsl9VEx7vabCxW/TuWNBp+GKNmtrzBFAI1sXPpE=",
+        "lastModified": 1793141448,
+        "narHash": "sha256-ItihtxW0IO8UJQvzcK8HPPzhTuPBK1ta7MCgkaxtC8A=",
         "owner": "I-am-Erk",
         "repo": "CDDA-Tilesets",
-        "rev": "a742848359cce2a1efabb5fa4bbe63a9fd674fae",
+        "rev": "a7f7a45834133dbe534a203be42cf23a9eb01aef",
         "type": "github"
       },
       "original": {
@@ -171,11 +171,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1792842277,
-        "narHash": "sha256-pGPnZGi8y9d76xNeracniXO3dsYVROEmMkMc8jD0Ihc=",
+        "lastModified": 1793136825,
+        "narHash": "sha256-2pkE69JpFRInaARSczZytcfPw83IL82E2KdhbWGwdMs=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "d3b13ad75cc492690728f9307e443dec9ef9a20e",
+        "rev": "f05535a0efcb2134c478d1e88434fadf486d42b5",
         "type": "github"
       },
       "original": {
