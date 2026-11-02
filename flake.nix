@@ -46,7 +46,7 @@
       flake = false;
     };
     cataclysm-tlg = {
-      url = "github:Cataclysm-TLG/Cataclysm-TLG/cataclysm-tlg-1.0-2026-11-01-1306";
+      url = "github:Cataclysm-TLG/Cataclysm-TLG/cataclysm-tlg-1.0-2026-11-02-1508";
       flake = false;
     };
     cataclysm-bn = {

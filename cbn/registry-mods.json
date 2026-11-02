@@ -5,11 +5,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "1dcb73f8eca72de849f8705ffeec804c13223e14",
+      "commit_sha": "f032a5085821cf5db99fbe760678f7feda8b828c",
       "extract_path": "nocts_cata_mod_BN",
       "url": "https://github.com/Noctifer-de-Mortem/nocts_cata_mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.10.28-1dcb73f"
+    "version": "2026.11.2-f032a50"
   },
   "cbn_sky_island": {
     "display_name": "Sky Island",
@@ -41,11 +41,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "d23d17978b737755462d65ebc66a6fe8999a6bb4",
+      "commit_sha": "9f402e1a0d978ce3e4d31496ecca5795ed1b15d4",
       "extract_path": "Medieval_Mod_Reborn_BN",
       "url": "https://github.com/chaosvolt/cdda_medieval_mod_reborn/archive/refs/heads/master.zip"
     },
-    "version": "2026.10.18-d23d179"
+    "version": "2026.11.2-9f402e1"
   },
   "mst_extra": {
     "display_name": "MST Extra",
@@ -53,11 +53,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "5e1a8bfde60b3ec7ae1d1cf227bd244896084716",
+      "commit_sha": "443ea413c4ccdcfdc4b90a2606399946827523e4",
       "extract_path": "MST_Extra_BN",
       "url": "https://github.com/chaosvolt/MST_Extra_Mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.10.5-5e1a8bf"
+    "version": "2026.11.2-443ea41"
   },
   "ny_transformers": {
     "display_name": "Transformers",

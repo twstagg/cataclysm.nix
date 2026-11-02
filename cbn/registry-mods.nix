@@ -87,11 +87,11 @@ let
   # identical fixed-output fetches dedupe to one store path). Rewritten
   # by ./scripts/update-registry-mods.sh; keep one entry per line, sorted.
   hashes = {
-    "cata" = "sha256-OXXikqmVaLznmIBIe5ps21M0lU1tQdPaUgCHZYTACM4=";
+    "cata" = "sha256-C2xuIyN5qBy+USkpULWo3TyY6MxBiwnnDz0aaUnhIaY=";
     "cbn_sky_island" = "sha256-jzt2qJe5FmJ1sxO6xPKA7cLjVHrQI39Cpb4lx94hKpo=";
     "jake_s_squirrel_mod" = "sha256-wsQt857uF4eHXbrXFJWU1TAOnF0QLBh+3eDj+loOKy8=";
-    "medieval_mod_reborn" = "sha256-WIYVfD9m+xBpF83MzWslQPaWriOmMmxGnzRKs5ZLoaY=";
-    "mst_extra" = "sha256-wCOYUOefqhhK6eHstX22oWgBmzHzusEpU3mFDYhT9Kk=";
+    "medieval_mod_reborn" = "sha256-Tp2HT54I2qAHqlAtCayXNXSriwwpXecoj77R7PG9WHM=";
+    "mst_extra" = "sha256-d4gaC0OrR6DuF+NFs240kcU1zDCRXqFy2D7JwRsVJc4=";
     "ny_transformers" = "sha256-+r8rQTR6KUUvXsqxtP4I7IVSZIFeW/CHALTnebs+xm0=";
     "otopack_bn_mk_2" = "sha256-2RqpyW9LVz1Q+2v3qi/pM+Mq0yZMIen/Ki4+BMfpCbo=";
     "overhaul" = "sha256-br34Lgeyx5BKbwbYYlSTuDbow8iq+890lQdGClw+Tp8=";
