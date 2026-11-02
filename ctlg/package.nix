@@ -2,9 +2,12 @@
 # own Makefile. TLG is a content fork of CDDA sharing its build system,
 # so this mirrors the CDDA chunk's ./package.nix, trimmed to TLG's reality:
 #
-#   * SDL2 backend (TLG predates upstream CDDA's SDL3 switch; no
-#     vendored imgui, SDL2-era headers throughout)
-#   * no shader step (no tools/build_shaders.py, no glslang)
+#   * SDL3 tiles backend (the direction upstream's post-Oct-2026
+#     SDL3 backport and release CI are moving to; the old SDL2 path no
+#     longer compiles in current tags)
+#   * no shader step (release tags carry the GLSL sources but not
+#     tools/build_shaders.py, and make install does not install shader
+#     artifacts; the SDL3 shader path degrades to disabled at runtime)
 #   * no test binary (the Catch2 suite was stripped at fork time;
 #     tests/ holds fixtures only)
 #   * tilesets ship pre-composed in gfx/ (synced from CTLG-Tilesets
@@ -27,15 +30,14 @@
   zlib,
   bzip2,
   libbacktrace,
-  SDL2,
-  SDL2_image,
-  SDL2_ttf,
-  SDL2_mixer,
-  libx11,
+  sdl3,
+  sdl3-image,
+  sdl3-ttf,
+  sdl3-mixer,
   freetype,
-  # SDL graphical build; ncurses text build when false
+  # SDL3 graphical build; ncurses text build when false
   tiles ? true,
-  # sound via SDL2_mixer; requires tiles (Makefile: SOUND needs TILES)
+  # sound via SDL3_mixer; requires tiles (Makefile: SOUND needs TILES)
   sound ? true,
   # debug build: no RELEASE=1, keep symbols
   debug ? false,
@@ -67,16 +69,12 @@ let
   gameDeps =
     if tiles then
       [
-        SDL2
-        SDL2_image
-        SDL2_ttf
+        sdl3
+        sdl3-image
+        sdl3-ttf
         freetype
-        # sdltiles.cpp includes SDL_syswm.h, which pulls X11/Xlib.h;
-        # nixpkgs' SDL2 is sdl2-compat, which does not propagate the
-        # X11 headers transitively (same fix as CDDA stable builds).
-        libx11
       ]
-      ++ optionals sound [ SDL2_mixer ]
+      ++ optionals sound [ sdl3-mixer ]
     else
       [ ncurses ];
 
@@ -88,8 +86,9 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "cataclysm-tlg" + variantSuffix;
   inherit version src;
 
-  # gettext: msgfmt for lang/*.po -> lang/*.mo. No python: TLG has no
-  # shader script or codegen step in the default goal. makeWrapper: the
+  # gettext: msgfmt for lang/*.po -> lang/*.mo. No python/glslang: TLG
+  # release tags ship GLSL sources but no tools/build_shaders.py, and
+  # the default goal never invokes a shader compiler. makeWrapper: the
   # --chdir wrapper in postFixup.
   nativeBuildInputs = [
     pkg-config
@@ -140,7 +139,9 @@ stdenv.mkDerivation (finalAttrs: {
     (if useXdgDir then "USE_XDG_DIR=1" else "USE_HOME_DIR=1")
   ]
   ++ optionals (!debug) [ "RELEASE=1" ]
-  ++ optionals tiles [ "TILES=1" ]
+  # The Makefile still defaults to SDL2; select the SDL3 backend that
+  # current upstream code and release CI target.
+  ++ optionals tiles [ "TILES=1" "SDL3=1" ]
   ++ optionals sound [ "SOUND=1" ];
 
   postInstall =

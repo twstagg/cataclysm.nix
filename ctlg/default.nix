@@ -3,7 +3,7 @@
 # declares inputs and systems. See ./README.md for the tour.
 #
 # TLG is a story-focused content fork of CDDA sharing its Makefile build
-# system, but: SDL2 backend, tilesets shipped pre-composed in-tree
+# system, but: SDL3 tiles backend, tilesets shipped pre-composed in-tree
 # (nothing to compose), the Catch2 suite stripped at fork time (no test
 # binary), and its own soundpack repo (CTLG-Soundpacks) bundled by
 # release CI the way CDDA bundles CC-Sounds.
@@ -171,10 +171,16 @@
         # twelve tilesets need no bundling: make install already
         # ships them in-tree, pre-composed.
         ctlg-tiles = ctlgTiles;
-        ctlg-curses = mkTlg {
-          tiles = false;
-          sound = false;
-        };
+        # No ctlg-curses: the 2026-10-31 SDL3 backport (commit 6c132f58b3
+        # "finishing up") dropped the SDL_SOUND guard around
+        # src/sdlsound.cpp, so a no-SDL build cannot compile it (the file
+        # now includes SDL unconditionally and redefines the inline no-op
+        # stubs sdlsound.h provides when SOUND=0). Upstream ships no fix
+        # and no CI exercises the curses build (matrix.yml and
+        # release.yml are workflow_dispatch-only; the live sdl3-matrix
+        # workflow builds SDL3 tiles+sound only), so no-patch packaging
+        # of a text build is impossible on current tags. Re-add once
+        # upstream restores the guard.
         ctlg-json-formatter = ctlgJsonFormatter;
         ctlg-chkjson = ctlgChkjson;
       }
@@ -212,22 +218,23 @@
 
       };
 
-      # One shell per game, no default. TLG is SDL2-only and ships its
-      # tilesets pre-composed, so no compose toolchain here.
+      # One shell per game, no default. TLG's tiles backend is SDL3 now
+      # (matching current upstream source), and its tilesets ship
+      # pre-composed, so no compose toolchain here.
       devShells.ctlg = pkgs.mkShell {
         packages = with pkgs; [
-          SDL2
-          SDL2_image
-          SDL2_mixer
-          SDL2_ttf
           bzip2
+          freetype
           gettext
           git
           libbacktrace
-          libx11
           ncurses
           nixfmt
           pkg-config
+          sdl3
+          sdl3-image
+          sdl3-mixer
+          sdl3-ttf
           zlib
         ];
 
