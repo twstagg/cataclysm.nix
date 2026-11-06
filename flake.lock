@@ -20,11 +20,11 @@
     "cataclysm-bn-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1793906687,
-        "narHash": "sha256-55v3gGWdExIxCVgtK3oXufsM2FbDMHyMgpHSbgVj2oY=",
+        "lastModified": 1793946351,
+        "narHash": "sha256-VyVlI1cG7xEVZrT66wRvUTk2Qf2KxIdP+3LVxwvrsjc=",
         "owner": "cataclysmbn",
         "repo": "Cataclysm-BN",
-        "rev": "06565b12bb2fb00fc528d2fbcd228a24f142abba",
+        "rev": "ae118666d1e6aa3ee6a48e0f222d8c2d99a491ec",
         "type": "github"
       },
       "original": {
@@ -53,11 +53,11 @@
     "cataclysm-dda-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1793900119,
-        "narHash": "sha256-dHd7cZjcUyaMiHSdxuDuUk2CczdMG9raHrS9Rm3faSw=",
+        "lastModified": 1793960203,
+        "narHash": "sha256-W9yNlb0WMjfHlr6ge+q3DrlFCptfPtsMUoiObIFn+nw=",
         "owner": "CleverRaven",
         "repo": "Cataclysm-DDA",
-        "rev": "874788e33f2683c7dc422df361bca60261f35696",
+        "rev": "06be12f9884d82d387cb6b38dc549eca71c3835a",
         "type": "github"
       },
       "original": {
@@ -69,16 +69,16 @@
     "cataclysm-tlg": {
       "flake": false,
       "locked": {
-        "lastModified": 1793910110,
-        "narHash": "sha256-Ual6wVbskmisTQvMBiJnWqej0wR+w58IE+R8dq2mnHE=",
+        "lastModified": 1793948802,
+        "narHash": "sha256-FVg2ccRblZIAEOQiJo1mGx+k/LSAbqZBYXioAflysO4=",
         "owner": "Cataclysm-TLG",
         "repo": "Cataclysm-TLG",
-        "rev": "05c0d6ff095c59d5dac9f3ec788a49f149e09a87",
+        "rev": "8ef8349b8f300b6e53c33184e2a8c77b6c8033ab",
         "type": "github"
       },
       "original": {
         "owner": "Cataclysm-TLG",
-        "ref": "cataclysm-tlg-1.0-2026-11-05-2023",
+        "ref": "cataclysm-tlg-1.0-2026-11-06-0707",
         "repo": "Cataclysm-TLG",
         "type": "github"
       }
