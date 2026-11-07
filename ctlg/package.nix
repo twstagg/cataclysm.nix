@@ -5,9 +5,13 @@
 #   * SDL3 tiles backend (the direction upstream's post-Oct-2026
 #     SDL3 backport and release CI are moving to; the old SDL2 path no
 #     longer compiles in current tags)
-#   * no shader step (release tags carry the GLSL sources but not
-#     tools/build_shaders.py, and make install does not install shader
-#     artifacts; the SDL3 shader path degrades to disabled at runtime)
+#   * shaders are built in the build: release tags ship
+#     tools/build_shaders.py and the default goal compiles data/shaders
+#     from GLSL to SPIR-V (stamp rule + `python3 tools/build_shaders.py`
+#     -> glslangValidator), and `make install` copies data/shaders, so
+#     the .spv artifacts are installed with the data. Only SPIR-V is
+#     built: dxil/msl would additionally need SDL_shadercross, which is a
+#     Windows/macOS runtime concern.
 #   * no test binary (the Catch2 suite was stripped at fork time;
 #     tests/ holds fixtures only)
 #   * tilesets ship pre-composed in gfx/ (synced from CTLG-Tilesets
@@ -86,13 +90,17 @@ stdenv.mkDerivation (finalAttrs: {
   pname = "cataclysm-tlg" + variantSuffix;
   inherit version src;
 
-  # gettext: msgfmt for lang/*.po -> lang/*.mo. No python/glslang: TLG
-  # release tags ship GLSL sources but no tools/build_shaders.py, and
-  # the default goal never invokes a shader compiler. makeWrapper: the
-  # --chdir wrapper in postFixup.
+  # gettext: msgfmt for lang/*.po -> lang/*.mo. python3 + glslang: the
+  # default goal compiles data/shaders to SPIR-V (the stamp rule runs
+  # `python3 tools/build_shaders.py`, which shells out to
+  # glslangValidator), so a build env without them dies on exit 127
+  # before the shader step. makeWrapper: the --chdir wrapper in
+  # postFixup.
   nativeBuildInputs = [
     pkg-config
     gettext
+    python3
+    glslang
     makeWrapper
   ];
 
