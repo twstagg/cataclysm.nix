@@ -28,6 +28,10 @@
   stdenv,
   pkg-config,
   gettext,
+  # SPIR-V step of the default goal: python3 runs tools/build_shaders.py,
+  # glslang provides glslangValidator (see nativeBuildInputs note)
+  python3,
+  glslang,
   # --chdir wrapper for the CWD-relative VERSION.txt (see postFixup)
   makeWrapper,
   ncurses,
@@ -94,8 +98,8 @@ stdenv.mkDerivation (finalAttrs: {
   # default goal compiles data/shaders to SPIR-V (the stamp rule runs
   # `python3 tools/build_shaders.py`, which shells out to
   # glslangValidator), so a build env without them dies on exit 127
-  # before the shader step. makeWrapper: the --chdir wrapper in
-  # postFixup.
+  # before the shader step; glslang ships glslangValidator. makeWrapper:
+  # the --chdir wrapper in postFixup.
   nativeBuildInputs = [
     pkg-config
     gettext
