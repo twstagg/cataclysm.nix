@@ -5,11 +5,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "f032a5085821cf5db99fbe760678f7feda8b828c",
+      "commit_sha": "7593f51b83ca9c5fa38ffab34322e542dc5b7e47",
       "extract_path": "nocts_cata_mod_BN",
       "url": "https://github.com/Noctifer-de-Mortem/nocts_cata_mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.2-f032a50"
+    "version": "2026.11.8-7593f51"
   },
   "cbn_sky_island": {
     "display_name": "Sky Island",
