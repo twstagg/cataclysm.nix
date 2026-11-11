@@ -5,11 +5,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "7593f51b83ca9c5fa38ffab34322e542dc5b7e47",
+      "commit_sha": "46982a63da25b064c8d0fdee9b68c23dccc1f671",
       "extract_path": "nocts_cata_mod_BN",
       "url": "https://github.com/Noctifer-de-Mortem/nocts_cata_mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.8-7593f51"
+    "version": "2026.11.10-46982a6"
   },
   "cbn_sky_island": {
     "display_name": "Sky Island",
@@ -17,11 +17,11 @@
     "license": "CC-BY-SA-4.0",
     "package_type": "mod",
     "source": {
-      "commit_sha": "f303b4681c5df7287f108a106942800aff0d9a50",
+      "commit_sha": "cd982dc084a4c9f45cacd9c628b658433848b6b8",
       "extract_path": null,
-      "url": "https://github.com/graysonchao/CBN-Sky-Island/archive/refs/tags/v0.0.9-alpha.zip"
+      "url": "https://github.com/graysonchao/CBN-Sky-Island/archive/refs/tags/v0.1.0-alpha.zip"
     },
-    "version": "0.0.9-alpha"
+    "version": "0.1.0-alpha"
   },
   "jake_s_squirrel_mod": {
     "display_name": "프로젝트: 다람쥐",
@@ -41,11 +41,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "9f402e1a0d978ce3e4d31496ecca5795ed1b15d4",
+      "commit_sha": "4a42bee4b2ef5941cc2d658ab5c8933670c344a5",
       "extract_path": "Medieval_Mod_Reborn_BN",
       "url": "https://github.com/chaosvolt/cdda_medieval_mod_reborn/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.2-9f402e1"
+    "version": "2026.11.10-4a42bee"
   },
   "mst_extra": {
     "display_name": "MST Extra",
@@ -53,11 +53,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "443ea413c4ccdcfdc4b90a2606399946827523e4",
+      "commit_sha": "0e694b3b846b69441fffc8cf4ef1ea521551bcc1",
       "extract_path": "MST_Extra_BN",
       "url": "https://github.com/chaosvolt/MST_Extra_Mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.2-443ea41"
+    "version": "2026.11.10-0e694b3"
   },
   "ny_transformers": {
     "display_name": "Transformers",
