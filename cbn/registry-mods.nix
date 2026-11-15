@@ -90,8 +90,8 @@ let
     "cata" = "sha256-CyOwzRcuyvXljvOvCLLHKnnI+Emx44hTymIHwlQaOec=";
     "cbn_sky_island" = "sha256-jzt2qJe5FmJ1sxO6xPKA7cLjVHrQI39Cpb4lx94hKpo=";
     "jake_s_squirrel_mod" = "sha256-wsQt857uF4eHXbrXFJWU1TAOnF0QLBh+3eDj+loOKy8=";
-    "medieval_mod_reborn" = "sha256-f1RuH/q6QmjS/5dYEGkk78TR7N3B23Xqn/yt1ZbiKw4=";
-    "mst_extra" = "sha256-e7eW2OBW6PPSGI4opqMMeSqQC5xZiyNex/uGxjY4ogk=";
+    "medieval_mod_reborn" = "sha256-IxpWlc3rziDYnqZmQF+RptzyUc9COV0zstLZVEov8Ug=";
+    "mst_extra" = "sha256-cokZSV74JwnBA7ohjyeoRiTLndZaNNfwqh7B2opOngY=";
     "ny_transformers" = "sha256-+r8rQTR6KUUvXsqxtP4I7IVSZIFeW/CHALTnebs+xm0=";
     "otopack_bn_mk_2" = "sha256-2RqpyW9LVz1Q+2v3qi/pM+Mq0yZMIen/Ki4+BMfpCbo=";
     "overhaul" = "sha256-br34Lgeyx5BKbwbYYlSTuDbow8iq+890lQdGClw+Tp8=";

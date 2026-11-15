@@ -41,11 +41,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "4a42bee4b2ef5941cc2d658ab5c8933670c344a5",
+      "commit_sha": "763b175d2be9d1d21b914712a0fdec342079ab25",
       "extract_path": "Medieval_Mod_Reborn_BN",
       "url": "https://github.com/chaosvolt/cdda_medieval_mod_reborn/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.10-4a42bee"
+    "version": "2026.11.14-763b175"
   },
   "mst_extra": {
     "display_name": "MST Extra",
@@ -53,11 +53,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "0e694b3b846b69441fffc8cf4ef1ea521551bcc1",
+      "commit_sha": "5f9dbfef550d5c140865ce5f6a32c40eb34c07ca",
       "extract_path": "MST_Extra_BN",
       "url": "https://github.com/chaosvolt/MST_Extra_Mod/archive/refs/heads/master.zip"
     },
-    "version": "2026.11.10-0e694b3"
+    "version": "2026.11.14-5f9dbfe"
   },
   "ny_transformers": {
     "display_name": "Transformers",
