@@ -20,11 +20,11 @@
     "cataclysm-bn-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1795099378,
-        "narHash": "sha256-T76/jjUXa4Z+wVAapugLBCvmPFdONBYezEy3XX50cr0=",
+        "lastModified": 1795149076,
+        "narHash": "sha256-82UbmO0NPPLIeroDwh0v/40/pzmPitnuerbvoxO7ekU=",
         "owner": "cataclysmbn",
         "repo": "Cataclysm-BN",
-        "rev": "26def8428572eb5bdb9bffc0697dfed70c0f0680",
+        "rev": "5fab229bde4e902669d6769ec8beb21e44ee4b45",
         "type": "github"
       },
       "original": {
@@ -53,11 +53,11 @@
     "cataclysm-dda-master": {
       "flake": false,
       "locked": {
-        "lastModified": 1795085863,
-        "narHash": "sha256-fBhblizB48gUnNEFOZGHJVXT9ADklkzpmhtvdJPHrWE=",
+        "lastModified": 1795168329,
+        "narHash": "sha256-AiMENC92InWhCtxbMxWbb+Ml2dJqkAS61WXZvmKoaD0=",
         "owner": "CleverRaven",
         "repo": "Cataclysm-DDA",
-        "rev": "2238c719badac8d6d25063d18538659874e5bb36",
+        "rev": "e422f76622480bcc53fd26b2553f401648ede8db",
         "type": "github"
       },
       "original": {
@@ -69,16 +69,16 @@
     "cataclysm-tlg": {
       "flake": false,
       "locked": {
-        "lastModified": 1795057025,
-        "narHash": "sha256-GC891XzEqgq3nUr7cOLE9zatKC6Kf4IFxFWADgKMGho=",
+        "lastModified": 1795109439,
+        "narHash": "sha256-B+X4Qc6fsNkJkz6ThO2BJDt/xB6olStcpyX6QnS30IM=",
         "owner": "Cataclysm-TLG",
         "repo": "Cataclysm-TLG",
-        "rev": "c08ea720bec3b3256f51535615767f6159dea6a4",
+        "rev": "fdd693d734a4ec4d5d5d2080f80d04daeb7b550e",
         "type": "github"
       },
       "original": {
         "owner": "Cataclysm-TLG",
-        "ref": "cataclysm-tlg-1.0-2026-11-19-0259",
+        "ref": "cataclysm-tlg-1.0-2026-11-19-1730",
         "repo": "Cataclysm-TLG",
         "type": "github"
       }
@@ -171,11 +171,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1794840529,
-        "narHash": "sha256-ySrWnmZB5UsZTYGHHnBjllT05O5iFjElCRS+mabtfP0=",
+        "lastModified": 1795095985,
+        "narHash": "sha256-DOTZsOOoEtOY0ysY9L6JzyDHZm4lGBr6P1bt1mFXcRw=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e21fec321d73511849707a7585e4ea155ee4bf40",
+        "rev": "19cfded70b91ca0981373973c5b1efffdd4d6647",
         "type": "github"
       },
       "original": {
