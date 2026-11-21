@@ -29,11 +29,11 @@
     "license": "ALL-RIGHTS-RESERVED",
     "package_type": "mod",
     "source": {
-      "commit_sha": "a8718444676e1fc191c7a4b9470fcdcbf23bbbf5",
+      "commit_sha": "9688ed6e873a062f02f20b8d08450f50be902091",
       "extract_path": "ProjectPackRat-main/ProjectSquirrel",
       "url": "https://github.com/NobleJake/ProjectPackRat/archive/refs/heads/main.zip"
     },
-    "version": "0.0.0"
+    "version": "2026.11.21-9688ed6"
   },
   "medieval_mod_reborn": {
     "display_name": "Medieval Mod Reborn",
@@ -65,11 +65,11 @@
     "license": "CC-BY-SA-3.0",
     "package_type": "mod",
     "source": {
-      "commit_sha": "aa10755711cfb537af03b944b3fcfb23f05b4800",
+      "commit_sha": "9688ed6e873a062f02f20b8d08450f50be902091",
       "extract_path": "ProjectPackRat-main/transformers_beta2.2",
       "url": "https://github.com/NobleJake/ProjectPackRat/archive/refs/heads/main.zip"
     },
-    "version": "2.2.0"
+    "version": "2026.11.21-9688ed6"
   },
   "otopack_bn_mk_2": {
     "display_name": "Otopack BN Mk 2",
